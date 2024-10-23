@@ -1,0 +1,9 @@
+/vendor
+/.idea
+/.vscode
+/.vagrant
+.phpunit.result.cache
+/buildroot
+/downloads
+/source
+.DS_Store
