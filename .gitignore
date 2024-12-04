@@ -7,3 +7,6 @@
 /downloads
 /source
 .DS_Store
+todo.md
+.env
+/storage/local-results

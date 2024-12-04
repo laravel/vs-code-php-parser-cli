@@ -25,7 +25,8 @@
     "require": {
         "php": "^8.2.0",
         "laravel-zero/framework": "^11.0.0",
-        "microsoft/tolerant-php-parser": "^0.1.2"
+        "microsoft/tolerant-php-parser": "^0.1.2",
+        "stillat/blade-parser": "^1.10"
     },
     "require-dev": {
         "laravel/pint": "^1.15.2",

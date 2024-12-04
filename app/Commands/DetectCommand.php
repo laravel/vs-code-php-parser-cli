@@ -2,29 +2,32 @@
 
 namespace App\Commands;
 
+use App\Parser\DetectWalker;
 use App\Parser\Walker;
 use Illuminate\Support\Facades\File;
 use LaravelZero\Framework\Commands\Command;
 
-class ParseCommand extends Command
+class DetectCommand extends Command
 {
-    protected $signature = 'parse {code} {--debug} {--from-file=}';
+    protected $signature = 'detect {code} {--debug} {--from-file=}';
 
-    protected $description = 'Parse the given PHP code';
+    protected $description = 'Detect things we care about in the current code';
 
     public function handle(): void
     {
         $code = $this->argument('code');
 
         if ($this->option('from-file')) {
-            $code = file_get_contents(__DIR__ . '/../../tests/snippets/parse/' . $this->option('from-file') . '.php');
+            $code = file_get_contents(__DIR__ . '/../../tests/snippets/detect/' . $this->option('from-file') . '.php');
         }
 
-        $walker = new Walker($code, !!$this->option('debug'));
+        // file_put_contents(__DIR__ . '/code.txt', $this->argument('code'));
+
+        $walker = new DetectWalker($code, !!$this->option('debug'));
         $result = $walker->walk();
 
         if (app()->isLocal()) {
-            $dir = 'local-results/parse';
+            $dir = 'local-results/detect';
             File::ensureDirectoryExists(storage_path($dir));
             $now = now()->format('Y-m-d-H-i-s');
 
