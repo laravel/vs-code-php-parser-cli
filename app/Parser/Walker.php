@@ -53,13 +53,11 @@ class Walker
         $this->sourceFile = (new Parser())->parseSourceFile(trim($this->document));
         $this->context = new Context;
 
-        $lastNode = null;
         $lastToken = null;
         $foundSkippedClosingQuote = false;
 
         foreach ($this->sourceFile->getDescendantNodesAndTokens() as $child) {
             if ($child instanceof Node) {
-                $lastNode = $child;
                 $this->debug('initial node check', $child::class, $child->getText());
             } else {
                 $lastToken = $child;

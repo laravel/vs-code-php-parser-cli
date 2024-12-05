@@ -1,18 +1,18 @@
 <?php
 
-use Parser\Walker;
+use App\Parser\Walker;
 
 function fromFile($file)
 {
     return file_get_contents(__DIR__ . '/../snippets/' . $file . '.php');
 }
 
-function toBeContext($values)
+function createContext($values)
 {
-    return json_encode(context($values), JSON_PRETTY_PRINT);
+    return json_encode(contextFromArray($values), JSON_PRETTY_PRINT);
 }
 
-function context($values)
+function contextFromArray($values)
 {
     return array_merge([
         'classDefinition' => null,
@@ -32,10 +32,10 @@ function context($values)
     ], $values);
 }
 
-function result($file)
+function contextResult($file)
 {
     $code = fromFile($file);
-    $walker = new Walker($code);
+    $walker = new Walker($code, true);
 
     $context = $walker->walk();
 
@@ -43,18 +43,18 @@ function result($file)
 }
 
 test('basic function', function () {
-    expect(result('basic-function'))->toBe(toBeContext([
+    expect(contextResult('basic-function'))->toBe(createContext([
         'methodUsed' => 'render',
     ]));
 });
 
 test('should not parse because of quote is not open', function () {
     // TODO: A single " is somehow translated string literal and doesn't work correctly
-    expect(result('no-parse-closed-string'))->toBe(toBeContext([]));
+    expect(contextResult('no-parse-closed-string'))->toBe(createContext([]));
 });
 
 test('basic function with params', function () {
-    expect(result('basic-function-with-param'))->toBe(toBeContext([
+    expect(contextResult('basic-function-with-param'))->toBe(createContext([
         'methodUsed' => 'render',
         'methodExistingArgs' => [
             [
@@ -67,14 +67,14 @@ test('basic function with params', function () {
 });
 
 test('basic static method', function () {
-    expect(result('basic-static-method'))->toBe(toBeContext([
+    expect(contextResult('basic-static-method'))->toBe(createContext([
         'classUsed' => 'App\Models\User',
         'methodUsed' => 'where',
     ]));
 });
 
 test('basic static method with params', function () {
-    expect(result('basic-static-method-with-params'))->toBe(toBeContext([
+    expect(contextResult('basic-static-method-with-params'))->toBe(createContext([
         'classUsed' => 'App\Models\User',
         'methodUsed' => 'where',
         'methodExistingArgs' => [
@@ -88,7 +88,7 @@ test('basic static method with params', function () {
 });
 
 test('chained static method with params', function () {
-    expect(result('chained-static-method-with-params'))->toBe(toBeContext([
+    expect(contextResult('chained-static-method-with-params'))->toBe(createContext([
         'classUsed' => 'App\Models\User',
         'methodUsed' => 'orWhere',
         'methodExistingArgs' => [
@@ -102,10 +102,10 @@ test('chained static method with params', function () {
 });
 
 test('basic method', function () {
-    expect(result('basic-method'))->toBe(toBeContext([
+    expect(contextResult('basic-method'))->toBe(createContext([
         'classUsed' => 'App\Models\User',
         'methodUsed' => 'where',
-        'parent' => context([
+        'parent' => contextFromArray([
             'variables' => [
                 'user' => [
                     'type' => 'object',
@@ -117,10 +117,10 @@ test('basic method', function () {
 });
 
 test('basic method with params', function () {
-    expect(result('basic-method-with-params'))->toBe(toBeContext([
+    expect(contextResult('basic-method-with-params'))->toBe(createContext([
         'classUsed' => 'App\Models\User',
         'methodUsed' => 'where',
-        'parent' => context([
+        'parent' => contextFromArray([
             'variables' => [
                 'user' => [
                     'type' => 'object',
@@ -139,7 +139,7 @@ test('basic method with params', function () {
 });
 
 test('chained method with params', function () {
-    expect(result('chained-method-with-params'))->toBe(toBeContext([
+    expect(contextResult('chained-method-with-params'))->toBe(createContext([
         'classUsed' => 'App\Models\User',
         'methodUsed' => 'orWhere',
         'methodExistingArgs' => [
@@ -149,7 +149,7 @@ test('chained method with params', function () {
             ],
         ],
         'paramIndex' => 1,
-        'parent' => context([
+        'parent' => contextFromArray([
             'variables' => [
                 'user' => [
                     'type' => 'object',
@@ -161,10 +161,10 @@ test('chained method with params', function () {
 });
 
 test('anonymous function as param', function () {
-    expect(result('anonymous-function-param'))->toBe(toBeContext([
+    expect(contextResult('anonymous-function-param'))->toBe(createContext([
         'classUsed' => 'Illuminate\Database\Query\Builder',
         'methodUsed' => 'whereIn',
-        'parent' => context([
+        'parent' => contextFromArray([
             'classUsed' => 'App\Models\User',
             'methodUsed' => 'where',
             'paramIndex' => 0,
@@ -189,10 +189,10 @@ test('anonymous function as param', function () {
 });
 
 test('arrow function as param', function () {
-    expect(result('arrow-function-param'))->toBe(toBeContext([
+    expect(contextResult('arrow-function-param'))->toBe(createContext([
         'classUsed' => 'Illuminate\Database\Query\Builder',
         'methodUsed' => 'whereIn',
-        'parent' => context([
+        'parent' => contextFromArray([
             'classUsed' => 'App\Models\User',
             'methodUsed' => 'where',
             'paramIndex' => 0,
@@ -217,10 +217,10 @@ test('arrow function as param', function () {
 });
 
 test('nested functions', function () {
-    expect(result('nested'))->toBe(toBeContext([
+    expect(contextResult('nested'))->toBe(createContext([
         'classUsed' => 'App\Models\User',
         'methodUsed' => 'where',
-        'parent' => context([
+        'parent' => contextFromArray([
             'classUsed' => 'Route',
             'methodUsed' => 'get',
             'paramIndex' => 1,
@@ -239,9 +239,9 @@ test('nested functions', function () {
 });
 
 test('array with arrow function', function () {
-    expect(result('array-with-arrow-function'))->toBe(toBeContext([
+    expect(contextResult('array-with-arrow-function'))->toBe(createContext([
         'methodUsed' => 'where',
-        'parent' => context([
+        'parent' => contextFromArray([
             'classUsed' => 'App\Models\User',
             'methodUsed' => 'with',
             'paramIndex' => 0,
@@ -273,9 +273,9 @@ test('array with arrow function', function () {
 });
 
 test('array with arrow function several keys', function () {
-    expect(result('array-with-arrow-function-several-keys'))->toBe(toBeContext([
+    expect(contextResult('array-with-arrow-function-several-keys'))->toBe(createContext([
         'methodUsed' => 'whereIn',
-        'parent' => context([
+        'parent' => contextFromArray([
             'classUsed' => 'App\Models\User',
             'methodUsed' => 'with',
             'paramIndex' => 0,
@@ -321,11 +321,112 @@ test('array with arrow function several keys', function () {
     ]));
 });
 
+test('eloquent make from set variable', function () {
+    expect(contextResult('eloquent-make-from-set-variable'))->toBe(createContext([
+        'classUsed' => 'Provider::make',
+        'parent' => contextFromArray([
+            'methodDefinition' => 'store',
+            'methodDefinitionParams' => [
+                [
+                    'types' => [
+                        'Illuminate\Http\Request',
+                    ],
+                    'name' => 'request',
+                ],
+            ],
+            'parent' => contextFromArray([
+                'classDefinition' => 'App\Http\Controllers\ProviderController',
+                'extends' => 'App\Http\Controllers\Controller',
+            ]),
+            'variables' => [
+                'request' => [
+                    'types' => [
+                        'Illuminate\Http\Request',
+                    ],
+                ],
+                'usesApiToken' => [
+                    'type' => 'unknown',
+                    'arguments' => [
+                        [
+                            'type' => 'unknown',
+                            'arguments' => [
+                                [
+                                    'type' => 'string',
+                                    'value' => 'provider',
+                                ],
+                            ],
+                            'value' => '$request->input',
+                        ],
+                        [
+                            'type' => 'array',
+                            'value' => [
+                                [
+                                    'key' => [
+                                        'type' => 'null',
+                                        'value' => null,
+                                    ],
+                                    'value' => [
+                                        'type' => 'unknown',
+                                        'arguments' => [],
+                                        'value' => 'Providers::DIGITALOCEAN',
+                                    ],
+                                ],
+                                [
+                                    'key' => [
+                                        'type' => 'null',
+                                        'value' => null,
+                                    ],
+                                    'value' => [
+                                        'type' => 'unknown',
+                                        'arguments' => [],
+                                        'value' => 'Providers::LARAVEL_FORGE',
+                                    ],
+                                ],
+                            ],
+                        ],
+                    ],
+                    'value' => 'in_array',
+                ],
+                'isAws' => [
+                    'type' => 'unknown',
+                    'value' => '$request->input(\'provider\') === Providers::AWS()',
+                ],
+                'provider' => [
+                    'type' => 'unknown',
+                    'arguments' => [
+                        [
+                            'type' => 'array',
+                            'value' => [],
+                        ],
+                    ],
+                    'value' => 'Provider::make',
+                ],
+            ],
+            'fillingInArrayKey' => true,
+            'fillingInArrayValue' => true,
+        ]),
+        'variables' => [
+            'provider' => [
+                'type' => 'unknown',
+                'arguments' => [
+                    [
+                        'type' => 'array',
+                        'value' => [],
+                    ],
+                ],
+                'value' => 'Provider::make',
+            ],
+        ],
+        'fillingInArrayKey' => true,
+        'fillingInArrayValue' => true,
+    ]));
+})->only();
+
 test('array with arrow function several keys and second param', function () {
-    expect(result('array-with-arrow-function-several-keys-and-second-param'))->toBe(toBeContext([
+    expect(contextResult('array-with-arrow-function-several-keys-and-second-param'))->toBe(createContext([
         'methodUsed' => 'whereIn',
         'paramIndex' => 1,
-        'parent' => context([
+        'parent' => contextFromArray([
             'classUsed' => 'App\Models\User',
             'methodUsed' => 'with',
             'paramIndex' => 0,
@@ -372,7 +473,7 @@ test('array with arrow function several keys and second param', function () {
 });
 
 test('array with arrow function missing second key', function () {
-    expect(result('array-with-arrow-function-missing-second-key'))->toBe(toBeContext([
+    expect(contextResult('array-with-arrow-function-missing-second-key'))->toBe(createContext([
         'classUsed' => 'App\Models\User',
         'methodUsed' => 'with',
         'paramIndex' => 0,
