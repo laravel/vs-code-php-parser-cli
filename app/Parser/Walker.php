@@ -75,6 +75,20 @@ class Walker
 
     public function walk(?Node $node = null): Context
     {
+        $node = $this->nextNodeToWalk ?? $node ?? $this->sourceFile;
+
+        SourceFile::$sourceFile = $this->sourceFile;
+
+        $parsed = Parse::parse($node);
+
+        // if ($parsed->pristine() && $parsed->parent) {
+        //     $parsed = $parsed->parent;
+        // }
+
+        $arr = $parsed->toArray();
+
+        dd($arr, 'end');
+
         if ($this->dontWalk) {
             return $this->context;
         }
@@ -398,6 +412,7 @@ class Walker
 
         $this->context->child = $context ?? new Context($this->context);
         $this->context = $this->context->child;
+        // dd($this->context);
     }
 
     protected function parseArgument($argument)

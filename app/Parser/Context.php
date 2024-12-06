@@ -2,6 +2,8 @@
 
 namespace App\Parser;
 
+use Illuminate\Support\Arr;
+
 class Context
 {
     public $classDefinition = null;
@@ -34,14 +36,34 @@ class Context
 
     public $paramIndex = 0;
 
+    public $children = [];
+
     public function __construct(public ?Context $parent = null)
     {
-        $this->freshObject = $this->toArray();
+        $this->freshObject = $this->freshArray();
+    }
+
+    protected function freshArray()
+    {
+        return Arr::except($this->toArray(), ['parent']);
+    }
+
+    public function initNew()
+    {
+        if ($this->pristine()) {
+            return $this;
+        }
+
+        $newContext = new static();
+
+        $this->children[] = $newContext;
+
+        return $newContext;
     }
 
     public function pristine(): bool
     {
-        return $this->toArray() === $this->freshObject;
+        return $this->freshObject === $this->freshArray();
     }
 
     public function touched(): bool
@@ -112,6 +134,7 @@ class Context
             'fillingInArrayKey' => $this->fillingInArrayKey,
             'fillingInArrayValue' => $this->fillingInArrayValue,
             'paramIndex' => $this->paramIndex,
+            'children' => array_map(fn($child) => $child->toArray(), $this->children),
         ];
     }
 
