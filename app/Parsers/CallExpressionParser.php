@@ -2,14 +2,29 @@
 
 namespace App\Parsers;
 
+use App\Contexts\AssignmentValue;
 use App\Contexts\BaseContext;
 use App\Contexts\MethodCall;
 use Microsoft\PhpParser\Node\Expression\CallExpression;
+use Microsoft\PhpParser\Node\QualifiedName;
 
 class CallExpressionParser extends AbstractParser
 {
+    /**
+     * @var MethodCall
+     */
+    protected BaseContext $context;
+
     public function parse(CallExpression $node)
     {
+        if ($this->context->name) {
+            return $this->context;
+        }
+
+        if ($node->callableExpression instanceof QualifiedName) {
+            $this->context->name = (string) ($node->callableExpression->getResolvedName() ?? $node->callableExpression->getText());
+        }
+
         return $this->context;
 
         // $lastChild = null;
@@ -80,8 +95,13 @@ class CallExpressionParser extends AbstractParser
         // return $this->context;
     }
 
-    // public function initNewContext(): ?BaseContext
-    // {
-    // return new MethodCall;
-    // }
+    public function initNewContext(): ?BaseContext
+    {
+        // TODO: Unclear if this is correct
+        if (!($this->context instanceof MethodCall) || $this->context->touched()) {
+            return new MethodCall;
+        }
+
+        return null;
+    }
 }

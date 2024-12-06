@@ -2,11 +2,10 @@
 
 namespace App\Contexts;
 
-class Generic extends BaseContext
+class ArrayValue extends BaseContext
 {
-
     public function type(): string
     {
-        return 'generic';
+        return 'array';
     }
 }

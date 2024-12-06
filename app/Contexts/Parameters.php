@@ -8,9 +8,4 @@ class Parameters extends BaseContext
     {
         return 'parameters';
     }
-
-    public function castToArray(): array
-    {
-        return [];
-    }
 }

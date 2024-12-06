@@ -10,9 +10,12 @@ abstract class BaseContext
 
     protected bool $hasChildren = true;
 
-    abstract public function castToArray(): array;
-
     abstract public function type(): string;
+
+    public function castToArray(): array
+    {
+        return [];
+    }
 
     public function __construct(protected $label = '')
     {
@@ -52,10 +55,10 @@ abstract class BaseContext
     public function toArray(): array
     {
         return array_merge(
-            $this->castToArray(),
             [
                 'type' => $this->type(),
             ],
+            $this->castToArray(),
             ($this->label !== '') ? ['label' => $this->label] : [],
             ($this->hasChildren) ? ['children' => array_map(fn($child) => $child->toArray(), $this->children)] : [],
         );

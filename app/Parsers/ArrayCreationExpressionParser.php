@@ -2,11 +2,17 @@
 
 namespace App\Parsers;
 
-use Microsoft\PhpParser\MissingToken;
+use App\Contexts\ArrayValue;
+use App\Contexts\BaseContext;
 use Microsoft\PhpParser\Node\Expression\ArrayCreationExpression;
 
 class ArrayCreationExpressionParser extends AbstractParser
 {
+    /**
+     * @var ArrayValue
+     */
+    protected BaseContext $context;
+
     public function parse(ArrayCreationExpression $node)
     {
         return $this->context;
@@ -35,5 +41,10 @@ class ArrayCreationExpressionParser extends AbstractParser
         // ];
 
         // return $this->context;
+    }
+
+    public function initNewContext(): ?BaseContext
+    {
+        return new ArrayValue;
     }
 }

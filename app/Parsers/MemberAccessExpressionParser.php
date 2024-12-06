@@ -25,7 +25,7 @@ class MemberAccessExpressionParser extends AbstractParser
 
     public function initNewContext(): ?BaseContext
     {
-        if ($this->context instanceof Argument) {
+        if (!($this->context instanceof MethodCall)) {
             return new MethodCall;
         }
 

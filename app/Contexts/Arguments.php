@@ -9,8 +9,8 @@ class Arguments extends BaseContext
         return 'arguments';
     }
 
-    public function castToArray(): array
+    public function toArray(): array
     {
-        return [];
+        return parent::toArray()['children'];
     }
 }

@@ -2,27 +2,26 @@
 
 namespace App\Parsers;
 
-use App\Parser\Parse;
+use App\Contexts\Assignment;
+use App\Contexts\BaseContext;
 use Microsoft\PhpParser\Node\Expression\AssignmentExpression;
 
 class AssignmentExpressionParser extends AbstractParser
 {
+    /**
+     * @var Assignment
+     */
+    protected BaseContext $context;
+
     public function parse(AssignmentExpression $node)
     {
-        // parseArgument in walker
-        // StringLiteral
-        // ArrayCreationExpression
-        // AnonymousFunctionCreationExpression
-        // ArrowFunctionCreationExpression
-        // ObjectCreationExpression
-        // $this->context->addVariable(
-        //     $node->leftOperand->getText(),
-        //     Parse::parse($node->rightOperand)?->toArray() ?? [
-        //         'type' => 'unknown',
-        //         'value' => $node->rightOperand->getText(),
-        //     ],
-        // );
+        $this->context->name = ltrim($node->leftOperand->getText(), '$');
 
-        return $this->context;
+        return $this->context->value;
+    }
+
+    public function initNewContext(): ?BaseContext
+    {
+        return new Assignment;
     }
 }

@@ -2,11 +2,10 @@
 
 namespace App\Contexts;
 
-class Generic extends BaseContext
+class AssignmentValue extends BaseContext
 {
-
     public function type(): string
     {
-        return 'generic';
+        return 'assignment_value';
     }
 }
