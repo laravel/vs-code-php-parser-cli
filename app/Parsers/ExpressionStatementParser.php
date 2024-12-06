@@ -1,19 +1,36 @@
 <?php
 
-namespace App\Parser\Parsers;
+namespace App\Parsers;
 
+use App\Contexts\BaseContext;
+use App\Contexts\MethodCall;
 use App\Parser\SourceFile;
-use Microsoft\PhpParser\Node\Expression\CallExpression;
 use Microsoft\PhpParser\Node\Expression\MemberAccessExpression;
 use Microsoft\PhpParser\Node\Expression\ScopedPropertyAccessExpression;
 use Microsoft\PhpParser\Node\QualifiedName;
+use Microsoft\PhpParser\Node\Statement\ExpressionStatement;
 
-class CallExpressionParser extends AbstractParser
+class ExpressionStatementParser extends AbstractParser
 {
-    use InitsNewContext;
+    /**
+     * @var MethodCall
+     */
+    protected BaseContext $context;
 
-    public function parse(CallExpression $node)
+    public function parse(ExpressionStatement $node)
     {
+        $callable = $node->expression->callableExpression ?? null;
+
+        if ($callable instanceof QualifiedName) {
+            $this->context->name = (string) ($callable->getResolvedName() ?? $callable->getText());
+        }
+
+        // else if ($callable instanceof MemberAccessExpression || $callable instanceof ScopedPropertyAccessExpression) {
+        //     $this->context->name = $callable->memberName->getFullText(SourceFile::fullText());
+        // }
+
+        // $this->loopChildren($node);
+
         return $this->context;
 
         // $lastChild = null;
@@ -82,5 +99,10 @@ class CallExpressionParser extends AbstractParser
         // }
 
         // return $this->context;
+    }
+
+    public function initNewContext(): ?BaseContext
+    {
+        return new MethodCall;
     }
 }

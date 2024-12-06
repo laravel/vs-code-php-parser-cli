@@ -1,19 +1,22 @@
 <?php
 
-namespace App\Parser\Parsers;
+namespace App\Parsers;
 
 use App\Parser\SourceFile;
-use Microsoft\PhpParser\Node\MethodDeclaration;
 use Microsoft\PhpParser\Node\QualifiedName;
+use Microsoft\PhpParser\Node\Statement\FunctionDeclaration;
 use Microsoft\PhpParser\Token;
 
-class MethodDeclarationParser extends AbstractParser
+class FunctionDeclarationParser extends AbstractParser
 {
     use InitsNewContext;
 
-    public function parse(MethodDeclaration $node)
+    public function parse(FunctionDeclaration $node)
     {
-        $this->context->methodDefinition = $node->getName();
+        $this->context->methodDefinition = array_map(
+            fn(Token $part) => $part->getText(SourceFile::fullText()),
+            $node->getNameParts(),
+        );
 
         if ($node->parameters) {
             foreach ($node->parameters->getElements() as $element) {
@@ -37,8 +40,6 @@ class MethodDeclarationParser extends AbstractParser
                 $this->context->methodDefinitionParams[] = $param;
             }
         }
-
-        // $this->loopChildren($node);
 
         return $this->context;
     }

@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Parser\Parsers;
+namespace App\Parsers;
 
 trait InitsNewContext
 {

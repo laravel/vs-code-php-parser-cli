@@ -1,16 +1,21 @@
 <?php
 
-namespace App\Parser\Parsers;
+namespace App\Parsers;
 
+use App\Contexts\BaseContext;
+use App\Contexts\ClassDefinition;
 use Microsoft\PhpParser\Node\Statement\ClassDeclaration;
 
 class ClassDeclarationParser extends AbstractParser
 {
-    use InitsNewContext;
+    /**
+     * @var ClassDefinition
+     */
+    protected BaseContext $context;
 
     public function parse(ClassDeclaration $node)
     {
-        $this->context->classDefinition = (string) $node->getNamespacedName();
+        $this->context->name = (string) $node->getNamespacedName();
 
         if ($node->classBaseClause) {
             $this->context->extends = (string) $node->classBaseClause->baseClass->getNamespacedName();
@@ -22,8 +27,11 @@ class ClassDeclarationParser extends AbstractParser
             }
         }
 
-        // $this->loopChildren($node);
-
         return $this->context;
+    }
+
+    public function initNewContext(): ?BaseContext
+    {
+        return new ClassDefinition();
     }
 }

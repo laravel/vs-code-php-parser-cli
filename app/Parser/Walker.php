@@ -3,6 +3,7 @@
 namespace App\Parser;
 
 use App\Support\Debugs;
+use Illuminate\Support\Facades\File;
 use Microsoft\PhpParser\MissingToken;
 use Microsoft\PhpParser\Node;
 use Microsoft\PhpParser\Node\ArrayElement;
@@ -86,6 +87,10 @@ class Walker
         // }
 
         $arr = $parsed->toArray();
+
+        File::ensureDirectoryExists(storage_path('new-parsed'));
+
+        file_put_contents(storage_path('new-parsed/' . now() . '.json'), json_encode($arr, JSON_PRETTY_PRINT));
 
         dd($arr, 'end');
 
