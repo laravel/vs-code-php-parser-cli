@@ -6,6 +6,10 @@ use Illuminate\Support\Arr;
 
 class ArrayItem extends AbstractContext
 {
+    public bool $hasKey = false;
+
+    public bool $autocompletingValue = false;
+
     public function type(): string
     {
         return 'array_item';
@@ -18,18 +22,56 @@ class ArrayItem extends AbstractContext
 
     public function castToArray(): array
     {
-        $key = null;
-        $value = null;
+        return [
+            'key' => $this->getKey()?->toArray(),
+            'value' => $this->getValue()?->toArray(),
 
-        if (count($this->children) === 1) {
-            [$value] = $this->children;
-        } elseif (count($this->children) === 2) {
-            [$key, $value] = $this->children;
+        ] + $this->getAutoCompletingValueData();
+    }
+
+    protected function getAutoCompletingValueData(): array
+    {
+        if ($this->autocompletingValue || $this->hasAutoCompletingChild($this)) {
+            return ['autocompletingValue' => true];
         }
 
-        return [
-            'key' => $key?->toArray(),
-            'value' => $value?->toArray(),
-        ];
+        return [];
+    }
+
+    protected function hasAutoCompletingChild(AbstractContext $context): bool
+    {
+        foreach ($context->children as $child) {
+            if ($child->autocompleting || $this->hasAutoCompletingChild($child)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    protected function getKey(): ?AbstractContext
+    {
+        if (count($this->children) === 1 && $this->hasKey) {
+            return $this->children[0];
+        }
+
+        if (count($this->children) === 2) {
+            return $this->children[0];
+        }
+
+        return null;
+    }
+
+    protected function getValue(): ?AbstractContext
+    {
+        if (count($this->children) === 1 && !$this->hasKey) {
+            return $this->children[0];
+        }
+
+        if (count($this->children) === 2) {
+            return $this->children[1];
+        }
+
+        return null;
     }
 }

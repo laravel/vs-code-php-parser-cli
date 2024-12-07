@@ -4,7 +4,9 @@ namespace App\Contexts;
 
 abstract class AbstractContext
 {
-    public $children = [];
+    public array $children = [];
+
+    public bool $autocompleting = false;
 
     protected array $freshObject;
 
@@ -74,9 +76,8 @@ abstract class AbstractContext
     public function toArray(): array
     {
         return array_merge(
-            [
-                'type' => $this->type(),
-            ],
+            ['type' => $this->type()],
+            $this->autocompleting ? ['autocompleting' => true] : [],
             $this->castToArray(),
             ($this->label !== '') ? ['label' => $this->label] : [],
             ($this->hasChildren) ? ['children' => array_map(fn($child) => $child->toArray(), $this->children)] : [],

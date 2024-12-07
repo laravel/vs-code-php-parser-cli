@@ -5,6 +5,7 @@ namespace App\Parsers;
 use App\Contexts\AssignmentValue;
 use App\Contexts\AbstractContext;
 use App\Contexts\MethodCall;
+use Microsoft\PhpParser\MissingToken;
 use Microsoft\PhpParser\Node\Expression\CallExpression;
 use Microsoft\PhpParser\Node\QualifiedName;
 
@@ -24,6 +25,8 @@ class CallExpressionParser extends AbstractParser
         if ($node->callableExpression instanceof QualifiedName) {
             $this->context->name = (string) ($node->callableExpression->getResolvedName() ?? $node->callableExpression->getText());
         }
+
+        $this->context->autocompleting = $node->closeParen instanceof MissingToken;
 
         return $this->context;
 

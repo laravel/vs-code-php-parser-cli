@@ -54,6 +54,7 @@ test('basic function', function () {
     expect(contextResult('basic-function'))->toBe(createContext([
         [
             'type' => 'methodCall',
+            'autocompleting' => true,
             'name' => 'render',
             'class' => null,
             'arguments' => [],
@@ -71,6 +72,7 @@ test('basic function with params', function () {
     expect(contextResult('basic-function-with-param'))->toBe(createContext([
         [
             'type' => 'methodCall',
+            'autocompleting' => true,
             'name' => 'render',
             'class' => null,
             'arguments' => [
@@ -88,6 +90,7 @@ test('basic static method', function () {
     expect(contextResult('basic-static-method'))->toBe(createContext([
         [
             'type' => 'methodCall',
+            'autocompleting' => true,
             'name' => 'where',
             'class' => 'App\Models\User',
             'arguments' => [],
@@ -100,6 +103,7 @@ test('basic static method with params', function () {
     expect(contextResult('basic-static-method-with-params'))->toBe(createContext([
         [
             'type' => 'methodCall',
+            'autocompleting' => true,
             'name' => 'where',
             'class' => 'App\Models\User',
             'arguments' => [
@@ -117,6 +121,7 @@ test('chained static method with params', function () {
     expect(contextResult('chained-static-method-with-params'))->toBe(createContext([
         [
             'type' => 'methodCall',
+            'autocompleting' => true,
             'name' => 'orWhere',
             'class' => 'App\Models\User',
             'arguments' => [
@@ -162,6 +167,7 @@ test('basic method', function () {
         ],
         [
             'type' => 'methodCall',
+            'autocompleting' => true,
             'name' => 'where',
             'class' => 'App\Models\User',
             'arguments' => [],
@@ -185,6 +191,7 @@ test('basic method with params', function () {
         ],
         [
             'type' => 'methodCall',
+            'autocompleting' => true,
             'name' => 'where',
             'class' => 'App\Models\User',
             'arguments' => [
@@ -213,6 +220,7 @@ test('chained method with params', function () {
         ],
         [
             'type' => 'methodCall',
+            'autocompleting' => true,
             'name' => 'orWhere',
             'class' => 'App\Models\User',
             'arguments' => [
@@ -247,6 +255,7 @@ test('anonymous function as param', function () {
     expect(contextResult('anonymous-function-param'))->toBe(createContext([
         [
             'type' => 'methodCall',
+            'autocompleting' => true,
             'name' => 'where',
             'class' => 'App\Models\User',
             'arguments' => [
@@ -261,6 +270,7 @@ test('anonymous function as param', function () {
                     'children' => [
                         [
                             'type' => 'methodCall',
+                            'autocompleting' => true,
                             'name' => 'whereIn',
                             'class' => 'Illuminate\Database\Query\Builder',
                             'arguments' => [],
@@ -278,6 +288,7 @@ test('arrow function as param', function () {
     expect(contextResult('arrow-function-param'))->toBe(createContext([
         [
             'type' => 'methodCall',
+            'autocompleting' => true,
             'name' => 'where',
             'class' => 'App\Models\User',
             'arguments' => [
@@ -292,6 +303,7 @@ test('arrow function as param', function () {
                     'children' => [
                         [
                             'type' => 'methodCall',
+                            'autocompleting' => true,
                             'name' => 'whereIn',
                             'class' => 'Illuminate\Database\Query\Builder',
                             'arguments' => [],
@@ -309,6 +321,7 @@ test('nested functions', function () {
     expect(contextResult('nested'))->toBe(createContext([
         [
             'type' => 'methodCall',
+            'autocompleting' => true,
             'name' => 'get',
             'class' => 'Route',
             'arguments' => [
@@ -334,6 +347,7 @@ test('nested functions', function () {
                         ],
                         [
                             'type' => 'methodCall',
+                            'autocompleting' => true,
                             'name' => 'where',
                             'class' => 'App\Models\User',
                             'arguments' => [],
@@ -351,11 +365,13 @@ test('array with arrow function', function () {
     expect(contextResult('array-with-arrow-function'))->toBe(createContext([
         [
             'type' => 'methodCall',
+            'autocompleting' => true,
             'name' => 'with',
             'class' => 'App\Models\User',
             'arguments' => [
                 [
                     'type' => 'array',
+                    'autocompleting' => true,
                     'children' => [
                         [
                             'key' => [
@@ -373,6 +389,7 @@ test('array with arrow function', function () {
                                 'children' => [
                                     [
                                         'type' => 'methodCall',
+                                        'autocompleting' => true,
                                         'name' => 'where',
                                         'class' => 'Illuminate\Database\Query\Builder',
                                         'arguments' => [],
@@ -380,8 +397,11 @@ test('array with arrow function', function () {
                                     ],
                                 ],
                             ],
+                            'autocompletingValue' => true,
                         ],
                     ],
+                    'autocompletingKey' => false,
+                    'autocompletingValue' => true,
                 ],
             ],
             'children' => [],
@@ -393,11 +413,13 @@ test('array with arrow function several keys', function () {
     expect(contextResult('array-with-arrow-function-several-keys'))->toBe(createContext([
         [
             'type' => 'methodCall',
+            'autocompleting' => true,
             'name' => 'with',
             'class' => 'App\Models\User',
             'arguments' => [
                 [
                     'type' => 'array',
+                    'autocompleting' => true,
                     'children' => [
                         [
                             'key' => [
@@ -448,6 +470,7 @@ test('array with arrow function several keys', function () {
                                 'children' => [
                                     [
                                         'type' => 'methodCall',
+                                        'autocompleting' => true,
                                         'name' => 'whereIn',
                                         'class' => null,
                                         'arguments' => [],
@@ -455,8 +478,11 @@ test('array with arrow function several keys', function () {
                                     ],
                                 ],
                             ],
+                            'autocompletingValue' => true,
                         ],
                     ],
+                    'autocompletingKey' => false,
+                    'autocompletingValue' => true,
                 ],
             ],
             'children' => [],
@@ -488,12 +514,16 @@ test('eloquent make from set variable', function () {
                             'value' => [
                                 [
                                     'type' => 'methodCall',
+                                    'autocompleting' => true,
                                     'name' => 'make',
                                     'class' => 'App\Models\Provider',
                                     'arguments' => [
                                         [
                                             'type' => 'array',
-                                            'children' => []
+                                            'autocompleting' => true,
+                                            'children' => [],
+                                            'autocompletingKey' => true,
+                                            'autocompletingValue' => true,
                                         ],
                                     ],
                                     'children' => [],
@@ -511,11 +541,13 @@ test('array with arrow function several keys and second param', function () {
     expect(contextResult('array-with-arrow-function-several-keys-and-second-param'))->toBe(createContext([
         [
             'type' => 'methodCall',
+            'autocompleting' => true,
             'name' => 'with',
             'class' => 'App\Models\User',
             'arguments' => [
                 [
                     'type' => 'array',
+                    'autocompleting' => true,
                     'children' => [
                         [
                             'key' => [
@@ -566,6 +598,7 @@ test('array with arrow function several keys and second param', function () {
                                 'children' => [
                                     [
                                         'type' => 'methodCall',
+                                        'autocompleting' => true,
                                         'name' => 'whereIn',
                                         'class' => null,
                                         'arguments' => [
@@ -578,8 +611,11 @@ test('array with arrow function several keys and second param', function () {
                                     ],
                                 ],
                             ],
+                            'autocompletingValue' => true,
                         ],
                     ],
+                    'autocompletingKey' => false,
+                    'autocompletingValue' => true,
                 ],
             ],
             'children' => [],
@@ -591,11 +627,13 @@ test('array with arrow function missing second key', function () {
     expect(contextResult('array-with-arrow-function-missing-second-key'))->toBe(createContext([
         [
             'type' => 'methodCall',
+            'autocompleting' => true,
             'name' => 'with',
             'class' => 'App\Models\User',
             'arguments' => [
                 [
                     'type' => 'array',
+                    'autocompleting' => true,
                     'children' => [
                         [
                             'key' => [
@@ -627,9 +665,14 @@ test('array with arrow function missing second key', function () {
                             ],
                         ],
                     ],
+                    'autocompletingKey' => true,
+                    'autocompletingValue' => false,
                 ],
             ],
             'children' => [],
         ],
     ]));
 });
+
+
+// TODO $THIS TEST

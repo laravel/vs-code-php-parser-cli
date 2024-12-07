@@ -4,6 +4,7 @@ namespace App\Parsers;
 
 use App\Contexts\ArrayValue;
 use App\Contexts\AbstractContext;
+use Microsoft\PhpParser\MissingToken;
 use Microsoft\PhpParser\Node\Expression\ArrayCreationExpression;
 
 class ArrayCreationExpressionParser extends AbstractParser
@@ -15,32 +16,9 @@ class ArrayCreationExpressionParser extends AbstractParser
 
     public function parse(ArrayCreationExpression $node)
     {
+        $this->context->autocompleting = $node->closeParenOrBracket instanceof MissingToken;
+
         return $this->context;
-
-        // $array = [];
-        // $lastValue = null;
-
-        // if ($node->arrayElements) {
-        //     foreach ($node->arrayElements->getElements() as $element) {
-        //         $array[] = [
-        //             'key' => $this->parseArgument($element->elementKey),
-        //             'value' => $this->parseArgument($element->elementValue),
-        //         ];
-
-        //         $lastValue = $element->elementValue;
-        //     }
-        // }
-
-        // if ($node->closeParenOrBracket instanceof MissingToken) {
-        //     $this->handleMissingArrayCloseToken($array, $lastValue);
-        // }
-
-        // return [
-        //     'type' => 'array',
-        //     'value' => $array,
-        // ];
-
-        // return $this->context;
     }
 
     public function initNewContext(): ?AbstractContext
