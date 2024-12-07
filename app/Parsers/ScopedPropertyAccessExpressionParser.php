@@ -3,7 +3,7 @@
 namespace App\Parsers;
 
 use App\Contexts\Argument;
-use App\Contexts\BaseContext;
+use App\Contexts\AbstractContext;
 use App\Contexts\MethodCall;
 use App\Parser\SourceFile;
 use Microsoft\PhpParser\Node\Expression\ScopedPropertyAccessExpression;
@@ -13,7 +13,7 @@ class ScopedPropertyAccessExpressionParser extends AbstractParser
     /**
      * @var MethodCall
      */
-    protected BaseContext $context;
+    protected AbstractContext $context;
 
     public function parse(ScopedPropertyAccessExpression $node)
     {
@@ -23,7 +23,7 @@ class ScopedPropertyAccessExpressionParser extends AbstractParser
         return $this->context;
     }
 
-    public function initNewContext(): ?BaseContext
+    public function initNewContext(): ?AbstractContext
     {
         if ($this->context instanceof Argument) {
             return new MethodCall;

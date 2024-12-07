@@ -2,11 +2,13 @@
 
 namespace App\Contexts;
 
-class Assignment extends BaseContext
+class Assignment extends AbstractContext
 {
     public ?string $name = null;
 
     public AssignmentValue $value;
+
+    protected bool $hasChildren = false;
 
     public function init()
     {

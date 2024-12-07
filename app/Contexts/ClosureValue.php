@@ -4,11 +4,9 @@ namespace App\Contexts;
 
 use App\Contexts\Contracts\HasParameters;
 
-class MethodDefinition extends AbstractContext implements HasParameters
+class ClosureValue extends AbstractContext implements HasParameters
 {
     public Parameters $parameters;
-
-    public ?string $name = null;
 
     public function init()
     {
@@ -17,13 +15,12 @@ class MethodDefinition extends AbstractContext implements HasParameters
 
     public function type(): string
     {
-        return 'methodDefinition';
+        return 'closure';
     }
 
     public function castToArray(): array
     {
         return [
-            'name' => $this->name,
             'parameters' => $this->parameters->toArray(),
         ];
     }

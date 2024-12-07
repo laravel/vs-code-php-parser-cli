@@ -2,13 +2,15 @@
 
 namespace App\Contexts;
 
-abstract class BaseContext
+abstract class AbstractContext
 {
     public $children = [];
 
     protected array $freshObject;
 
     protected bool $hasChildren = true;
+
+    protected ?AbstractContext $parent = null;
 
     abstract public function type(): string;
 
@@ -31,15 +33,32 @@ abstract class BaseContext
         return $this->toArray();
     }
 
-    public function initNew(BaseContext $newContext)
+    public function initNew(AbstractContext $newContext)
     {
-        // if ($this->pristine()) {
-        //     return $this;
-        // }
+        $newContext->parent = $this;
 
         $this->children[] = $newContext;
 
         return $newContext;
+    }
+
+    public function searchForVar(string $name): AssignmentValue | string | null
+    {
+        if ($this instanceof ClosureValue) {
+            foreach ($this->parameters->children as $param) {
+                if ($param->name === $name) {
+                    return $param->types[0] ?? null;
+                }
+            }
+        }
+
+        foreach ($this->children as $child) {
+            if ($child instanceof Assignment && $child->name === $name) {
+                return $child->value;
+            }
+        }
+
+        return $this->parent?->searchForVar($name) ?? null;
     }
 
     public function pristine(): bool

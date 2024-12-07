@@ -2,7 +2,7 @@
 
 namespace App\Contexts;
 
-class ArrayValue extends BaseContext
+class ArrayValue extends AbstractContext
 {
     public function type(): string
     {

@@ -3,7 +3,7 @@
 namespace App\Parsers;
 
 use App\Contexts\Assignment;
-use App\Contexts\BaseContext;
+use App\Contexts\AbstractContext;
 use Microsoft\PhpParser\Node\Expression\AssignmentExpression;
 
 class AssignmentExpressionParser extends AbstractParser
@@ -11,7 +11,7 @@ class AssignmentExpressionParser extends AbstractParser
     /**
      * @var Assignment
      */
-    protected BaseContext $context;
+    protected AbstractContext $context;
 
     public function parse(AssignmentExpression $node)
     {
@@ -20,7 +20,7 @@ class AssignmentExpressionParser extends AbstractParser
         return $this->context->value;
     }
 
-    public function initNewContext(): ?BaseContext
+    public function initNewContext(): ?AbstractContext
     {
         return new Assignment;
     }

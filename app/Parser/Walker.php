@@ -2,6 +2,7 @@
 
 namespace App\Parser;
 
+use App\Contexts\Base;
 use App\Support\Debugs;
 use Illuminate\Support\Facades\File;
 use Microsoft\PhpParser\MissingToken;
@@ -46,20 +47,21 @@ class Walker
 
     protected $nextNodeToWalk = null;
 
-    protected $dontWalk = false;
-
     public function __construct(protected string $document, $debug = false)
     {
         $this->debug = $debug;
         $this->sourceFile = (new Parser())->parseSourceFile(trim($this->document));
         $this->context = new Context;
+    }
 
+    public function walk(?Node $node = null)
+    {
         $lastToken = null;
         $foundSkippedClosingQuote = false;
 
         foreach ($this->sourceFile->getDescendantNodesAndTokens() as $child) {
             if ($child instanceof Node) {
-                $this->debug('initial node check', $child::class, $child->getText());
+                // $this->debug('initial node check', $child::class, $child->getText());
             } else {
                 $lastToken = $child;
 
@@ -67,24 +69,27 @@ class Walker
                     $foundSkippedClosingQuote = true;
                 }
 
-                $this->debug('initial token check', $child::class, $child->getText($this->sourceFile->getFullText()));
+                // $this->debug('initial token check', $child::class, $child->getText($this->sourceFile->getFullText()));
             }
         }
 
-        $this->dontWalk = !$foundSkippedClosingQuote;
-    }
+        if (!$foundSkippedClosingQuote) {
+            return new Base;
+        }
 
-    public function walk(?Node $node = null): Context
-    {
+        $lastNode = null;
+
+        foreach ($this->sourceFile->getDescendantNodes() as $child) {
+            $lastNode = $child;
+        }
+
         $node = $this->nextNodeToWalk ?? $node ?? $this->sourceFile;
 
         SourceFile::$sourceFile = $this->sourceFile;
 
-        $parsed = Parse::parse($node);
+        Parse::$lastNode = $lastNode;
 
-        // if ($parsed->pristine() && $parsed->parent) {
-        //     $parsed = $parsed->parent;
-        // }
+        $parsed = Parse::parse($node);
 
         $arr = $parsed->toArray();
 
@@ -92,7 +97,15 @@ class Walker
 
         file_put_contents(storage_path('new-parsed/' . now() . '.json'), json_encode($arr, JSON_PRETTY_PRINT));
 
-        dd($arr, 'end');
+        // $final = $parsed;
+
+        // while (count($final->children)) {
+        //     $final = collect($final->children)->last();
+        // }
+
+        // dd($final->toArray());
+        return $parsed;
+        dd($arr, 'result');
 
         if ($this->dontWalk) {
             return $this->context;

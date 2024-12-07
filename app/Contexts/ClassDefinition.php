@@ -2,7 +2,7 @@
 
 namespace App\Contexts;
 
-class ClassDefinition extends BaseContext
+class ClassDefinition extends AbstractContext
 {
     public ?string $name = null;
 

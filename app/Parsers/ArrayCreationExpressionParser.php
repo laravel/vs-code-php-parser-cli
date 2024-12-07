@@ -3,7 +3,7 @@
 namespace App\Parsers;
 
 use App\Contexts\ArrayValue;
-use App\Contexts\BaseContext;
+use App\Contexts\AbstractContext;
 use Microsoft\PhpParser\Node\Expression\ArrayCreationExpression;
 
 class ArrayCreationExpressionParser extends AbstractParser
@@ -11,7 +11,7 @@ class ArrayCreationExpressionParser extends AbstractParser
     /**
      * @var ArrayValue
      */
-    protected BaseContext $context;
+    protected AbstractContext $context;
 
     public function parse(ArrayCreationExpression $node)
     {
@@ -43,7 +43,7 @@ class ArrayCreationExpressionParser extends AbstractParser
         // return $this->context;
     }
 
-    public function initNewContext(): ?BaseContext
+    public function initNewContext(): ?AbstractContext
     {
         return new ArrayValue;
     }

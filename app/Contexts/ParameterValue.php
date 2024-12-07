@@ -2,11 +2,11 @@
 
 namespace App\Contexts;
 
-class AssignmentValue extends AbstractContext
+class ParameterValue extends AbstractContext
 {
     public function type(): string
     {
-        return 'assignment_value';
+        return 'parameter_value';
     }
 
     public function toArray(): array

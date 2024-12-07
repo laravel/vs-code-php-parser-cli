@@ -4,7 +4,7 @@ namespace App\Parsers;
 
 use App\Contexts\Argument;
 use App\Contexts\MethodCall;
-use App\Contexts\BaseContext;
+use App\Contexts\AbstractContext;
 use App\Parser\Parse;
 use Microsoft\PhpParser\Node\Expression\ArgumentExpression;
 
@@ -13,7 +13,7 @@ class ArgumentExpressionParser extends AbstractParser
     /**
      * @var MethodCall
      */
-    protected BaseContext $context;
+    protected AbstractContext $context;
 
     public function parse(ArgumentExpression $node)
     {
@@ -45,7 +45,7 @@ class ArgumentExpressionParser extends AbstractParser
         // return $this->context;
     }
 
-    public function initNewContext(): ?BaseContext
+    public function initNewContext(): ?AbstractContext
     {
         return new Argument;
     }

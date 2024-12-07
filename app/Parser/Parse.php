@@ -2,34 +2,35 @@
 
 namespace App\Parser;
 
-use App\Contexts\BaseContext;
-use App\Contexts\Generic;
+use App\Contexts\AbstractContext;
+use App\Contexts\Base;
+use App\Contexts\StringValue;
 use Microsoft\PhpParser\Node;
-use Microsoft\PhpParser\Node\SourceFileNode;
 
 class Parse
 {
-    public static function parse(Node $node, $depth = 0, ?BaseContext $currentContext = null)
+    public static $lastNode = null;
+
+    public static function parse(Node $node, $depth = 0, ?AbstractContext $currentContext = null)
     {
-        // echo str_repeat('   ', $depth) . $node::class . ' `' . substr(str_replace("\n", ' ', $node->getText()), 0, 25) . '`' . PHP_EOL;
+        if ($currentContext === null) {
+            self::debugBreak();
+            self::debug($depth, str_repeat('=', 80));
+            self::debug($depth, str_repeat('=', 80));
+            self::debug($depth, str_repeat(' ', 30) . 'STARTING TO PARSE');
+            self::debug($depth, str_repeat('=', 80));
+            self::debug($depth, str_repeat('=', 80));
+            self::debugBreak();
+        }
 
-        // foreach ($node->getChildNodes() as $child) {
-        //     self::parse($child, $depth + 1);
-        // }
-
-        // return;
-
-        echo str_repeat('   ', $depth) . $node::class . PHP_EOL;
+        self::debug($depth, $node::class, "\e[2m" . self::getCodeSnippet($node) . "\e[0m");
 
         $class = basename(str_replace('\\', '/', $node::class));
         $parserClass = 'App\\Parsers\\' . $class . 'Parser';
 
-        $context = $currentContext ?? new Generic();
+        $context = $currentContext ?? new Base();
 
         if (class_exists($parserClass)) {
-            echo str_repeat(' ', $depth) . '- Parsing: ' . $parserClass . PHP_EOL;
-            echo PHP_EOL;
-
             /** @var \App\Parsers\AbstractParser */
             $parser = app()->make($parserClass);
             $parser->context($context)->depth($depth + 1);
@@ -39,6 +40,10 @@ class Parse
                 $parser->context($context);
             }
 
+            self::debug($depth, '+ Context:', $context::class);
+            self::debug($depth, '* Parsing: ' . $parserClass);
+            self::debugBreak();
+
             $context = $parser->parseNode($node);
         }
 
@@ -47,5 +52,35 @@ class Parse
         }
 
         return $context;
+    }
+
+    public static function tree(Node $node, $depth = 0)
+    {
+        echo str_repeat('   ', $depth) . $node::class . ' `' . substr(str_replace("\n", ' ', $node->getText()), 0, 25) . '`' . PHP_EOL;
+
+        foreach ($node->getChildNodes() as $child) {
+            self::tree($child, $depth + 1);
+        }
+    }
+
+    protected static function getCodeSnippet(Node $node)
+    {
+        $stripped = preg_replace(
+            '/\s+/',
+            ' ',
+            str_replace("\n", ' ', $node->getText())
+        );
+
+        return substr($stripped, 0, 50);
+    }
+
+    protected static function debug($depth, ...$messages)
+    {
+        echo str_repeat(' ', $depth) . implode(' ', $messages) . PHP_EOL;
+    }
+
+    protected static function debugBreak()
+    {
+        echo PHP_EOL;
     }
 }

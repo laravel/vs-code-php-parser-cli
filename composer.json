@@ -24,6 +24,7 @@
     ],
     "require": {
         "php": "^8.2.0",
+        "illuminate/log": "^11.5",
         "laravel-zero/framework": "^11.0.0",
         "microsoft/tolerant-php-parser": "^0.1.2",
         "stillat/blade-parser": "^1.10"

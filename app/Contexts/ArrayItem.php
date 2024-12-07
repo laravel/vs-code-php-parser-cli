@@ -2,11 +2,18 @@
 
 namespace App\Contexts;
 
-class ArrayItem extends BaseContext
+use Illuminate\Support\Arr;
+
+class ArrayItem extends AbstractContext
 {
     public function type(): string
     {
         return 'array_item';
+    }
+
+    public function toArray(): array
+    {
+        return Arr::except(parent::toArray(), ['children', 'type']);
     }
 
     public function castToArray(): array
@@ -19,8 +26,6 @@ class ArrayItem extends BaseContext
         } elseif (count($this->children) === 2) {
             [$key, $value] = $this->children;
         }
-
-        $this->children = [];
 
         return [
             'key' => $key?->toArray(),

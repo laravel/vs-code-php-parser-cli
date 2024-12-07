@@ -3,7 +3,7 @@
 namespace App\Parsers;
 
 use App\Contexts\AssignmentValue;
-use App\Contexts\BaseContext;
+use App\Contexts\AbstractContext;
 use App\Contexts\MethodCall;
 use Microsoft\PhpParser\Node\Expression\CallExpression;
 use Microsoft\PhpParser\Node\QualifiedName;
@@ -13,7 +13,7 @@ class CallExpressionParser extends AbstractParser
     /**
      * @var MethodCall
      */
-    protected BaseContext $context;
+    protected AbstractContext $context;
 
     public function parse(CallExpression $node)
     {
@@ -95,7 +95,7 @@ class CallExpressionParser extends AbstractParser
         // return $this->context;
     }
 
-    public function initNewContext(): ?BaseContext
+    public function initNewContext(): ?AbstractContext
     {
         // TODO: Unclear if this is correct
         if (!($this->context instanceof MethodCall) || $this->context->touched()) {

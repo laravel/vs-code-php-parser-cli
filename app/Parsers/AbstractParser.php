@@ -2,23 +2,23 @@
 
 namespace App\Parsers;
 
-use App\Contexts\BaseContext;
+use App\Contexts\AbstractContext;
 use Microsoft\PhpParser\Node;
 
 abstract class AbstractParser
 {
     protected int $depth = 0;
 
-    protected BaseContext $context;
+    protected AbstractContext $context;
 
-    public function context(BaseContext $context)
+    public function context(AbstractContext $context)
     {
         $this->context = $context;
 
         return $this;
     }
 
-    public function parseNode(Node $node): BaseContext
+    public function parseNode(Node $node): AbstractContext
     {
         if (method_exists($this, 'parse')) {
             return call_user_func([$this, 'parse'], $node);
@@ -34,7 +34,7 @@ abstract class AbstractParser
         return $this;
     }
 
-    public function initNewContext(): ?BaseContext
+    public function initNewContext(): ?AbstractContext
     {
         return null;
     }

@@ -2,7 +2,7 @@
 
 namespace App\Contexts;
 
-class StringValue extends BaseContext
+class StringValue extends AbstractContext
 {
     public ?string $value = null;
 

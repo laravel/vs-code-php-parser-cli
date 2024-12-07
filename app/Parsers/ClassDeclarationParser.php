@@ -2,7 +2,7 @@
 
 namespace App\Parsers;
 
-use App\Contexts\BaseContext;
+use App\Contexts\AbstractContext;
 use App\Contexts\ClassDefinition;
 use Microsoft\PhpParser\Node\Statement\ClassDeclaration;
 
@@ -11,7 +11,7 @@ class ClassDeclarationParser extends AbstractParser
     /**
      * @var ClassDefinition
      */
-    protected BaseContext $context;
+    protected AbstractContext $context;
 
     public function parse(ClassDeclaration $node)
     {
@@ -30,7 +30,7 @@ class ClassDeclarationParser extends AbstractParser
         return $this->context;
     }
 
-    public function initNewContext(): ?BaseContext
+    public function initNewContext(): ?AbstractContext
     {
         return new ClassDefinition();
     }

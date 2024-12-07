@@ -2,11 +2,9 @@
 
 namespace App\Contexts;
 
-class MethodCall extends AbstractContext
+class ObjectValue extends AbstractContext
 {
     public ?string $name = null;
-
-    public ?string $class = null;
 
     public Arguments $arguments;
 
@@ -17,15 +15,13 @@ class MethodCall extends AbstractContext
 
     public function type(): string
     {
-        return 'methodCall';
+        return 'object';
     }
 
     public function castToArray(): array
     {
         return [
             'name' => $this->name,
-            'class' => $this->class,
-            'arguments' => $this->arguments->toArray(),
         ];
     }
 }

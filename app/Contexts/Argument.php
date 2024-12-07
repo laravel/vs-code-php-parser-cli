@@ -2,7 +2,7 @@
 
 namespace App\Contexts;
 
-class Argument extends BaseContext
+class Argument extends AbstractContext
 {
     public function type(): string
     {

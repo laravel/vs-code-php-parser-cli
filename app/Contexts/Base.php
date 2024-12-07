@@ -2,11 +2,11 @@
 
 namespace App\Contexts;
 
-class Generic extends BaseContext
+class Base extends AbstractContext
 {
 
     public function type(): string
     {
-        return 'generic';
+        return 'base';
     }
 }

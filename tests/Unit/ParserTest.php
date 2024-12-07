@@ -9,7 +9,7 @@ function fromFile($file)
 
 function createContext($values)
 {
-    return json_encode(contextFromArray($values), JSON_PRETTY_PRINT);
+    return json_encode(['type' => 'base', 'children' => $values], JSON_PRETTY_PRINT);
 }
 
 function contextFromArray($values)
@@ -32,19 +32,33 @@ function contextFromArray($values)
     ], $values);
 }
 
-function contextResult($file)
+function contextResult($file, $dump = false)
 {
     $code = fromFile($file);
     $walker = new Walker($code, true);
 
     $context = $walker->walk();
 
+    if ($dump === true) {
+        dd($context);
+    } else if ($dump === 'json') {
+        dd($context->toJson(JSON_PRETTY_PRINT));
+    } else if ($dump === 'array') {
+        dd($context->toArray());
+    }
+
     return $context->toJson(JSON_PRETTY_PRINT);
 }
 
 test('basic function', function () {
     expect(contextResult('basic-function'))->toBe(createContext([
-        'methodUsed' => 'render',
+        [
+            'type' => 'methodCall',
+            'name' => 'render',
+            'class' => null,
+            'arguments' => [],
+            'children' => [],
+        ],
     ]));
 });
 
@@ -55,201 +69,294 @@ test('should not parse because of quote is not open', function () {
 
 test('basic function with params', function () {
     expect(contextResult('basic-function-with-param'))->toBe(createContext([
-        'methodUsed' => 'render',
-        'methodExistingArgs' => [
-            [
-                'type' => 'string',
-                'value' => 'my-view',
+        [
+            'type' => 'methodCall',
+            'name' => 'render',
+            'class' => null,
+            'arguments' => [
+                [
+                    'type' => 'string',
+                    'value' => 'my-view',
+                ]
             ],
+            'children' => [],
         ],
-        'paramIndex' => 1,
     ]));
 });
 
 test('basic static method', function () {
     expect(contextResult('basic-static-method'))->toBe(createContext([
-        'classUsed' => 'App\Models\User',
-        'methodUsed' => 'where',
+        [
+            'type' => 'methodCall',
+            'name' => 'where',
+            'class' => 'App\Models\User',
+            'arguments' => [],
+            'children' => [],
+        ],
     ]));
 });
 
 test('basic static method with params', function () {
     expect(contextResult('basic-static-method-with-params'))->toBe(createContext([
-        'classUsed' => 'App\Models\User',
-        'methodUsed' => 'where',
-        'methodExistingArgs' => [
-            [
-                'type' => 'string',
-                'value' => 'email',
+        [
+            'type' => 'methodCall',
+            'name' => 'where',
+            'class' => 'App\Models\User',
+            'arguments' => [
+                [
+                    'type' => 'string',
+                    'value' => 'email',
+                ]
             ],
+            'children' => [],
         ],
-        'paramIndex' => 1,
     ]));
 });
 
 test('chained static method with params', function () {
     expect(contextResult('chained-static-method-with-params'))->toBe(createContext([
-        'classUsed' => 'App\Models\User',
-        'methodUsed' => 'orWhere',
-        'methodExistingArgs' => [
-            [
-                'type' => 'string',
-                'value' => 'name',
+        [
+            'type' => 'methodCall',
+            'name' => 'orWhere',
+            'class' => 'App\Models\User',
+            'arguments' => [
+                [
+                    'type' => 'string',
+                    'value' => 'name',
+                ],
+            ],
+            'children' => [
+                [
+                    'type' => 'methodCall',
+                    'name' => 'where',
+                    'class' => 'App\Models\User',
+                    'arguments' => [
+                        [
+                            'type' => 'string',
+                            'value' => 'email',
+                        ],
+                        [
+                            'type' => 'string',
+                            'value' => '',
+                        ]
+                    ],
+                    'children' => [],
+                ],
             ],
         ],
-        'paramIndex' => 1,
     ]));
 });
 
 test('basic method', function () {
     expect(contextResult('basic-method'))->toBe(createContext([
-        'classUsed' => 'App\Models\User',
-        'methodUsed' => 'where',
-        'parent' => contextFromArray([
-            'variables' => [
-                'user' => [
+        [
+            'type' => 'assignment',
+            'name' => 'user',
+            'value' => [
+                [
                     'type' => 'object',
-                    'value' => 'App\Models\User',
+                    'name' => 'App\Models\User',
+                    'children' => [],
                 ],
             ],
-        ]),
+        ],
+        [
+            'type' => 'methodCall',
+            'name' => 'where',
+            'class' => 'App\Models\User',
+            'arguments' => [],
+            'children' => [],
+        ],
     ]));
 });
 
 test('basic method with params', function () {
     expect(contextResult('basic-method-with-params'))->toBe(createContext([
-        'classUsed' => 'App\Models\User',
-        'methodUsed' => 'where',
-        'parent' => contextFromArray([
-            'variables' => [
-                'user' => [
+        [
+            'type' => 'assignment',
+            'name' => 'user',
+            'value' => [
+                [
                     'type' => 'object',
-                    'value' => 'App\Models\User',
+                    'name' => 'App\Models\User',
+                    'children' => [],
                 ],
             ],
-        ]),
-        'methodExistingArgs' => [
-            [
-                'type' => 'string',
-                'value' => 'email',
-            ],
         ],
-        'paramIndex' => 1,
+        [
+            'type' => 'methodCall',
+            'name' => 'where',
+            'class' => 'App\Models\User',
+            'arguments' => [
+                [
+                    'type' => 'string',
+                    'value' => 'email',
+                ],
+            ],
+            'children' => [],
+        ],
     ]));
 });
 
 test('chained method with params', function () {
     expect(contextResult('chained-method-with-params'))->toBe(createContext([
-        'classUsed' => 'App\Models\User',
-        'methodUsed' => 'orWhere',
-        'methodExistingArgs' => [
-            [
-                'type' => 'string',
-                'value' => 'name',
-            ],
-        ],
-        'paramIndex' => 1,
-        'parent' => contextFromArray([
-            'variables' => [
-                'user' => [
+        [
+            'type' => 'assignment',
+            'name' => 'user',
+            'value' => [
+                [
                     'type' => 'object',
-                    'value' => 'App\Models\User',
+                    'name' => 'App\Models\User',
+                    'children' => [],
                 ],
             ],
-        ]),
+        ],
+        [
+            'type' => 'methodCall',
+            'name' => 'orWhere',
+            'class' => 'App\Models\User',
+            'arguments' => [
+                [
+                    'type' => 'string',
+                    'value' => 'name',
+                ],
+            ],
+            'children' => [
+                [
+                    'type' => 'methodCall',
+                    'name' => 'where',
+                    'class' => 'App\Models\User',
+                    'arguments' => [
+                        [
+                            'type' => 'string',
+                            'value' => 'email',
+                        ],
+                        [
+                            'type' => 'string',
+                            'value' => '',
+                        ]
+                    ],
+                    'children' => [],
+                ],
+            ],
+        ],
     ]));
 });
 
 test('anonymous function as param', function () {
     expect(contextResult('anonymous-function-param'))->toBe(createContext([
-        'classUsed' => 'Illuminate\Database\Query\Builder',
-        'methodUsed' => 'whereIn',
-        'parent' => contextFromArray([
-            'classUsed' => 'App\Models\User',
-            'methodUsed' => 'where',
-            'paramIndex' => 0,
-            'methodExistingArgs' => [
+        [
+            'type' => 'methodCall',
+            'name' => 'where',
+            'class' => 'App\Models\User',
+            'arguments' => [
                 [
                     'type' => 'closure',
-                    'arguments' => [
+                    'parameters' => [
                         [
                             'types' => ['Illuminate\Database\Query\Builder'],
                             'name' => 'q',
                         ],
                     ],
+                    'children' => [
+                        [
+                            'type' => 'methodCall',
+                            'name' => 'whereIn',
+                            'class' => 'Illuminate\Database\Query\Builder',
+                            'arguments' => [],
+                            'children' => [],
+                        ],
+                    ],
                 ],
             ],
-            'variables' => [
-                'q' => [
-                    'types' => ['Illuminate\Database\Query\Builder'],
-                ],
-            ],
-        ]),
+            'children' => [],
+        ]
     ]));
 });
 
 test('arrow function as param', function () {
     expect(contextResult('arrow-function-param'))->toBe(createContext([
-        'classUsed' => 'Illuminate\Database\Query\Builder',
-        'methodUsed' => 'whereIn',
-        'parent' => contextFromArray([
-            'classUsed' => 'App\Models\User',
-            'methodUsed' => 'where',
-            'paramIndex' => 0,
-            'methodExistingArgs' => [
+        [
+            'type' => 'methodCall',
+            'name' => 'where',
+            'class' => 'App\Models\User',
+            'arguments' => [
                 [
                     'type' => 'closure',
-                    'arguments' => [
+                    'parameters' => [
                         [
                             'types' => ['Illuminate\Database\Query\Builder'],
                             'name' => 'q',
                         ],
                     ],
+                    'children' => [
+                        [
+                            'type' => 'methodCall',
+                            'name' => 'whereIn',
+                            'class' => 'Illuminate\Database\Query\Builder',
+                            'arguments' => [],
+                            'children' => [],
+                        ],
+                    ],
                 ],
             ],
-            'variables' => [
-                'q' => [
-                    'types' => ['Illuminate\Database\Query\Builder'],
-                ],
-            ],
-        ]),
+            'children' => [],
+        ]
     ]));
 });
 
 test('nested functions', function () {
     expect(contextResult('nested'))->toBe(createContext([
-        'classUsed' => 'App\Models\User',
-        'methodUsed' => 'where',
-        'parent' => contextFromArray([
-            'classUsed' => 'Route',
-            'methodUsed' => 'get',
-            'paramIndex' => 1,
-            'methodExistingArgs' => [
+        [
+            'type' => 'methodCall',
+            'name' => 'get',
+            'class' => 'Route',
+            'arguments' => [
                 [
                     'type' => 'string',
                     'value' => '/',
                 ],
                 [
                     'type' => 'closure',
-                    'arguments' => [],
+                    'parameters' => [],
+                    'children' => [
+                        [
+                            'type' => 'methodCall',
+                            'name' => 'trans',
+                            'class' => null,
+                            'arguments' => [
+                                [
+                                    'type' => 'string',
+                                    'value' => 'auth.throttle',
+                                ],
+                            ],
+                            'children' => [],
+                        ],
+                        [
+                            'type' => 'methodCall',
+                            'name' => 'where',
+                            'class' => 'App\Models\User',
+                            'arguments' => [],
+                            'children' => [],
+                        ],
+                    ]
                 ],
             ],
-        ]),
+            'children' => [],
+        ],
     ]));
 });
 
 test('array with arrow function', function () {
     expect(contextResult('array-with-arrow-function'))->toBe(createContext([
-        'methodUsed' => 'where',
-        'parent' => contextFromArray([
-            'classUsed' => 'App\Models\User',
-            'methodUsed' => 'with',
-            'paramIndex' => 0,
-            'fillingInArrayValue' => true,
-            'methodExistingArgs' => [
+        [
+            'type' => 'methodCall',
+            'name' => 'with',
+            'class' => 'App\Models\User',
+            'arguments' => [
                 [
                     'type' => 'array',
-                    'value' => [
+                    'children' => [
                         [
                             'key' => [
                                 'type' => 'string',
@@ -257,10 +364,19 @@ test('array with arrow function', function () {
                             ],
                             'value' => [
                                 'type' => 'closure',
-                                'arguments' => [
+                                'parameters' => [
                                     [
                                         'types' => ['Illuminate\Database\Query\Builder'],
                                         'name' => 'q',
+                                    ],
+                                ],
+                                'children' => [
+                                    [
+                                        'type' => 'methodCall',
+                                        'name' => 'where',
+                                        'class' => 'Illuminate\Database\Query\Builder',
+                                        'arguments' => [],
+                                        'children' => [],
                                     ],
                                 ],
                             ],
@@ -268,22 +384,21 @@ test('array with arrow function', function () {
                     ],
                 ],
             ],
-        ]),
+            'children' => [],
+        ],
     ]));
 });
 
 test('array with arrow function several keys', function () {
     expect(contextResult('array-with-arrow-function-several-keys'))->toBe(createContext([
-        'methodUsed' => 'whereIn',
-        'parent' => contextFromArray([
-            'classUsed' => 'App\Models\User',
-            'methodUsed' => 'with',
-            'paramIndex' => 0,
-            'fillingInArrayValue' => true,
-            'methodExistingArgs' => [
+        [
+            'type' => 'methodCall',
+            'name' => 'with',
+            'class' => 'App\Models\User',
+            'arguments' => [
                 [
                     'type' => 'array',
-                    'value' => [
+                    'children' => [
                         [
                             'key' => [
                                 'type' => 'string',
@@ -291,10 +406,28 @@ test('array with arrow function several keys', function () {
                             ],
                             'value' => [
                                 'type' => 'closure',
-                                'arguments' => [
+                                'parameters' => [
                                     [
                                         'types' => ['Illuminate\Database\Query\Builder'],
                                         'name' => 'q',
+                                    ],
+                                ],
+                                'children' => [
+                                    [
+                                        'type' => 'methodCall',
+                                        'name' => 'where',
+                                        'class' => 'Illuminate\Database\Query\Builder',
+                                        'arguments' => [
+                                            [
+                                                'type' => 'string',
+                                                'value' => '',
+                                            ],
+                                            [
+                                                'type' => 'string',
+                                                'value' => '',
+                                            ],
+                                        ],
+                                        'children' => [],
                                     ],
                                 ],
                             ],
@@ -306,10 +439,19 @@ test('array with arrow function several keys', function () {
                             ],
                             'value' => [
                                 'type' => 'closure',
-                                'arguments' => [
+                                'parameters' => [
                                     [
                                         'types' => [],
                                         'name' => 'q',
+                                    ],
+                                ],
+                                'children' => [
+                                    [
+                                        'type' => 'methodCall',
+                                        'name' => 'whereIn',
+                                        'class' => null,
+                                        'arguments' => [],
+                                        'children' => [],
                                     ],
                                 ],
                             ],
@@ -317,124 +459,64 @@ test('array with arrow function several keys', function () {
                     ],
                 ],
             ],
-        ]),
+            'children' => [],
+        ],
     ]));
 });
 
 test('eloquent make from set variable', function () {
     expect(contextResult('eloquent-make-from-set-variable'))->toBe(createContext([
-        'classUsed' => 'Provider::make',
-        'parent' => contextFromArray([
-            'methodDefinition' => 'store',
-            'methodDefinitionParams' => [
+        [
+            'type' => 'classDefinition',
+            'name' => 'App\Http\Controllers\ProviderController',
+            'extends' => 'App\Http\Controllers\Controller',
+            'implements' => [],
+            'children' => [
                 [
-                    'types' => [
-                        'Illuminate\Http\Request',
-                    ],
-                    'name' => 'request',
-                ],
-            ],
-            'parent' => contextFromArray([
-                'classDefinition' => 'App\Http\Controllers\ProviderController',
-                'extends' => 'App\Http\Controllers\Controller',
-            ]),
-            'variables' => [
-                'request' => [
-                    'types' => [
-                        'Illuminate\Http\Request',
-                    ],
-                ],
-                'usesApiToken' => [
-                    'type' => 'unknown',
-                    'arguments' => [
+                    'type' => 'methodDefinition',
+                    'name' => 'store',
+                    'parameters' => [
                         [
-                            'type' => 'unknown',
-                            'arguments' => [
-                                [
-                                    'type' => 'string',
-                                    'value' => 'provider',
-                                ],
-                            ],
-                            'value' => '$request->input',
+                            'types' => ['Illuminate\Http\Request'],
+                            'name' => 'request',
                         ],
+                    ],
+                    'children' => [
                         [
-                            'type' => 'array',
+                            'type' => 'assignment',
+                            'name' => 'provider',
                             'value' => [
                                 [
-                                    'key' => [
-                                        'type' => 'null',
-                                        'value' => null,
+                                    'type' => 'methodCall',
+                                    'name' => 'make',
+                                    'class' => 'App\Models\Provider',
+                                    'arguments' => [
+                                        [
+                                            'type' => 'array',
+                                            'children' => []
+                                        ],
                                     ],
-                                    'value' => [
-                                        'type' => 'unknown',
-                                        'arguments' => [],
-                                        'value' => 'Providers::DIGITALOCEAN',
-                                    ],
-                                ],
-                                [
-                                    'key' => [
-                                        'type' => 'null',
-                                        'value' => null,
-                                    ],
-                                    'value' => [
-                                        'type' => 'unknown',
-                                        'arguments' => [],
-                                        'value' => 'Providers::LARAVEL_FORGE',
-                                    ],
+                                    'children' => [],
                                 ],
                             ],
-                        ],
-                    ],
-                    'value' => 'in_array',
-                ],
-                'isAws' => [
-                    'type' => 'unknown',
-                    'value' => '$request->input(\'provider\') === Providers::AWS()',
-                ],
-                'provider' => [
-                    'type' => 'unknown',
-                    'arguments' => [
-                        [
-                            'type' => 'array',
-                            'value' => [],
-                        ],
-                    ],
-                    'value' => 'Provider::make',
-                ],
-            ],
-            'fillingInArrayKey' => true,
-            'fillingInArrayValue' => true,
-        ]),
-        'variables' => [
-            'provider' => [
-                'type' => 'unknown',
-                'arguments' => [
-                    [
-                        'type' => 'array',
-                        'value' => [],
-                    ],
-                ],
-                'value' => 'Provider::make',
-            ],
-        ],
-        'fillingInArrayKey' => true,
-        'fillingInArrayValue' => true,
+                        ]
+                    ]
+                ]
+            ]
+        ]
     ]));
-})->only();
+});
 
 test('array with arrow function several keys and second param', function () {
     expect(contextResult('array-with-arrow-function-several-keys-and-second-param'))->toBe(createContext([
-        'methodUsed' => 'whereIn',
-        'paramIndex' => 1,
-        'parent' => contextFromArray([
-            'classUsed' => 'App\Models\User',
-            'methodUsed' => 'with',
-            'paramIndex' => 0,
-            'fillingInArrayValue' => true,
-            'methodExistingArgs' => [
+        [
+            'type' => 'methodCall',
+            'name' => 'with',
+            'class' => 'App\Models\User',
+            'arguments' => [
                 [
                     'type' => 'array',
-                    'value' => [
+                    'children' => [
                         [
                             'key' => [
                                 'type' => 'string',
@@ -442,10 +524,28 @@ test('array with arrow function several keys and second param', function () {
                             ],
                             'value' => [
                                 'type' => 'closure',
-                                'arguments' => [
+                                'parameters' => [
                                     [
                                         'types' => ['Illuminate\Database\Query\Builder'],
                                         'name' => 'q',
+                                    ],
+                                ],
+                                'children' => [
+                                    [
+                                        'type' => 'methodCall',
+                                        'name' => 'where',
+                                        'class' => 'Illuminate\Database\Query\Builder',
+                                        'arguments' => [
+                                            [
+                                                'type' => 'string',
+                                                'value' => '',
+                                            ],
+                                            [
+                                                'type' => 'string',
+                                                'value' => '',
+                                            ],
+                                        ],
+                                        'children' => [],
                                     ],
                                 ],
                             ],
@@ -457,10 +557,24 @@ test('array with arrow function several keys and second param', function () {
                             ],
                             'value' => [
                                 'type' => 'closure',
-                                'arguments' => [
+                                'parameters' => [
                                     [
                                         'types' => [],
                                         'name' => 'q',
+                                    ],
+                                ],
+                                'children' => [
+                                    [
+                                        'type' => 'methodCall',
+                                        'name' => 'whereIn',
+                                        'class' => null,
+                                        'arguments' => [
+                                            [
+                                                'type' => 'string',
+                                                'value' => '',
+                                            ],
+                                        ],
+                                        'children' => [],
                                     ],
                                 ],
                             ],
@@ -468,37 +582,54 @@ test('array with arrow function several keys and second param', function () {
                     ],
                 ],
             ],
-        ]),
+            'children' => [],
+        ],
     ]));
 });
 
 test('array with arrow function missing second key', function () {
     expect(contextResult('array-with-arrow-function-missing-second-key'))->toBe(createContext([
-        'classUsed' => 'App\Models\User',
-        'methodUsed' => 'with',
-        'paramIndex' => 0,
-        'fillingInArrayKey' => true,
-        'methodExistingArgs' => [
-            [
-                'type' => 'array',
-                'value' => [
-                    [
-                        'key' => [
-                            'type' => 'string',
-                            'value' => 'team',
-                        ],
-                        'value' => [
-                            'type' => 'closure',
-                            'arguments' => [
-                                [
-                                    'types' => ['Illuminate\Database\Query\Builder'],
-                                    'name' => 'q',
+        [
+            'type' => 'methodCall',
+            'name' => 'with',
+            'class' => 'App\Models\User',
+            'arguments' => [
+                [
+                    'type' => 'array',
+                    'children' => [
+                        [
+                            'key' => [
+                                'type' => 'string',
+                                'value' => 'team',
+                            ],
+                            'value' => [
+                                'type' => 'closure',
+                                'parameters' => [
+                                    [
+                                        'types' => ['Illuminate\Database\Query\Builder'],
+                                        'name' => 'q',
+                                    ],
+                                ],
+                                'children' => [
+                                    [
+                                        'type' => 'methodCall',
+                                        'name' => 'where',
+                                        'class' => 'Illuminate\Database\Query\Builder',
+                                        'arguments' => [
+                                            [
+                                                'type' => 'string',
+                                                'value' => '',
+                                            ],
+                                        ],
+                                        'children' => [],
+                                    ],
                                 ],
                             ],
                         ],
                     ],
                 ],
             ],
+            'children' => [],
         ],
     ]));
 });

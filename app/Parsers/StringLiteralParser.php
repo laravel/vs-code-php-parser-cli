@@ -2,7 +2,7 @@
 
 namespace App\Parsers;
 
-use App\Contexts\BaseContext;
+use App\Contexts\AbstractContext;
 use App\Contexts\StringValue;
 use Microsoft\PhpParser\Node\StringLiteral;
 
@@ -11,7 +11,7 @@ class StringLiteralParser extends AbstractParser
     /**
      * @var StringValue
      */
-    protected BaseContext $context;
+    protected AbstractContext $context;
 
     public function parse(StringLiteral $node)
     {
@@ -20,7 +20,7 @@ class StringLiteralParser extends AbstractParser
         return $this->context;
     }
 
-    public function initNewContext(): ?BaseContext
+    public function initNewContext(): ?AbstractContext
     {
         return new StringValue;
     }
