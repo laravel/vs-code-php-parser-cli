@@ -8,7 +8,7 @@ use Microsoft\PhpParser\Node;
 
 class Parse
 {
-    public static $lastNode = null;
+    public static $debug = false;
 
     public static function parse(Node $node, $depth = 0, ?AbstractContext $currentContext = null)
     {
@@ -75,11 +75,15 @@ class Parse
 
     protected static function debug($depth, ...$messages)
     {
-        echo str_repeat(' ', $depth) . implode(' ', $messages) . PHP_EOL;
+        if (self::$debug) {
+            echo str_repeat(' ', $depth) . implode(' ', $messages) . PHP_EOL;
+        }
     }
 
     protected static function debugBreak()
     {
-        echo PHP_EOL;
+        if (self::$debug) {
+            echo PHP_EOL;
+        }
     }
 }
