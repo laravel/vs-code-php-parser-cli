@@ -4,7 +4,6 @@ namespace App\Parsers;
 
 use App\Contexts\AbstractContext;
 use App\Contexts\MethodCall;
-use Microsoft\PhpParser\Node\Statement\ReturnStatement;
 
 class ReturnStatementParser extends AbstractParser
 {

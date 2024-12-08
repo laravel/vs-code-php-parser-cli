@@ -28,7 +28,7 @@ class Parameter extends AbstractContext
     {
         return [
             'types' => $this->types,
-            'name' => $this->name,
+            'name'  => $this->name,
             // 'value' => $this->value->toArray(),
         ];
     }

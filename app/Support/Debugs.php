@@ -10,7 +10,7 @@ trait Debugs
     {
         if (count($args) === 0) {
             $this->debug = true;
-        } else if ($this->debug) {
+        } elseif ($this->debug) {
             echo PHP_EOL;
             echo str_repeat(' ', $this->depth * 2) . '***' . PHP_EOL;
 

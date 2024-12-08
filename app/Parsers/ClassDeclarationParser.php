@@ -17,21 +17,11 @@ class ClassDeclarationParser extends AbstractParser
     {
         $this->context->name = (string) $node->getNamespacedName();
 
-        if ($node->classBaseClause) {
-            $this->context->extends = (string) $node->classBaseClause->baseClass->getNamespacedName();
-        }
-
-        if ($node->classInterfaceClause) {
-            foreach ($node->classInterfaceClause->interfaceNameList->getElements() as $element) {
-                $this->context->implements[] = (string) $element->getResolvedName();
-            }
-        }
-
         return $this->context;
     }
 
     public function initNewContext(): ?AbstractContext
     {
-        return new ClassDefinition();
+        return new ClassDefinition;
     }
 }

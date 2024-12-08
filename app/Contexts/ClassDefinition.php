@@ -10,6 +10,8 @@ class ClassDefinition extends AbstractContext
 
     public array $implements = [];
 
+    public array $properties = [];
+
     public function type(): string
     {
         return 'classDefinition';
@@ -18,9 +20,10 @@ class ClassDefinition extends AbstractContext
     public function castToArray(): array
     {
         return [
-            'name' => $this->name,
-            'extends' => $this->extends,
+            'name'       => $this->name,
+            'extends'    => $this->extends,
             'implements' => $this->implements,
+            'properties' => $this->properties,
         ];
     }
 }

@@ -77,7 +77,7 @@ class DetectContext
     {
         $param = array_filter(
             $this->methodDefinitionParams,
-            fn($param) => $param['name'] === $name,
+            fn ($param) => $param['name'] === $name,
         );
 
         if (count($param)) {
@@ -98,20 +98,20 @@ class DetectContext
     public function toArray()
     {
         return [
-            'classDefinition' => $this->classDefinition,
-            'implements' => $this->implements,
-            'extends' => $this->extends,
-            'methodDefinition' => $this->methodDefinition,
+            'classDefinition'        => $this->classDefinition,
+            'implements'             => $this->implements,
+            'extends'                => $this->extends,
+            'methodDefinition'       => $this->methodDefinition,
             'methodDefinitionParams' => $this->methodDefinitionParams,
-            'methodExistingArgs' => $this->methodExistingArgs,
-            'classUsed' => $this->classUsed,
-            'methodUsed' => $this->methodUsed,
-            'parent' => $this->parent?->toArray(),
-            'variables' => $this->variables,
-            'definedProperties' => $this->definedProperties,
-            'fillingInArrayKey' => $this->fillingInArrayKey,
-            'fillingInArrayValue' => $this->fillingInArrayValue,
-            'paramIndex' => $this->paramIndex,
+            'methodExistingArgs'     => $this->methodExistingArgs,
+            'classUsed'              => $this->classUsed,
+            'methodUsed'             => $this->methodUsed,
+            'parent'                 => $this->parent?->toArray(),
+            'variables'              => $this->variables,
+            'definedProperties'      => $this->definedProperties,
+            'fillingInArrayKey'      => $this->fillingInArrayKey,
+            'fillingInArrayValue'    => $this->fillingInArrayValue,
+            'paramIndex'             => $this->paramIndex,
         ];
     }
 

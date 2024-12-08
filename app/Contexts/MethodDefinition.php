@@ -12,7 +12,7 @@ class MethodDefinition extends AbstractContext implements HasParameters
 
     public function init()
     {
-        $this->parameters = new Parameters();
+        $this->parameters = new Parameters;
     }
 
     public function type(): string
@@ -23,7 +23,7 @@ class MethodDefinition extends AbstractContext implements HasParameters
     public function castToArray(): array
     {
         return [
-            'name' => $this->name,
+            'name'       => $this->name,
             'parameters' => $this->parameters->toArray(),
         ];
     }

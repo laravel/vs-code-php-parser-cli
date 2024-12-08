@@ -30,7 +30,7 @@ class DetectedItem
     public function toArray()
     {
         return [
-            'class' => $this->classUsed,
+            'class'  => $this->classUsed,
             'method' => $this->methodUsed,
             'params' => $this->params,
         ];

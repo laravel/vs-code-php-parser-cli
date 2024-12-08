@@ -4,7 +4,6 @@ namespace App\Parser;
 
 use App\Contexts\AbstractContext;
 use App\Contexts\Base;
-use App\Contexts\StringValue;
 use Microsoft\PhpParser\Node;
 
 class Parse
@@ -28,7 +27,7 @@ class Parse
         $class = basename(str_replace('\\', '/', $node::class));
         $parserClass = 'App\\Parsers\\' . $class . 'Parser';
 
-        $context = $currentContext ?? new Base();
+        $context = $currentContext ?? new Base;
 
         if (class_exists($parserClass)) {
             /** @var \App\Parsers\AbstractParser */

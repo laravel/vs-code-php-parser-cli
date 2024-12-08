@@ -27,7 +27,7 @@ class ParameterParser extends AbstractParser
         foreach ($node->typeDeclarationList->getValues() as $type) {
             if ($type instanceof Token) {
                 $this->context->types[] = $type->getText(SourceFile::fullText());
-            } else if ($type instanceof QualifiedName) {
+            } elseif ($type instanceof QualifiedName) {
                 $this->context->types[] = (string) $type->getResolvedName();
             }
         }

@@ -23,7 +23,7 @@ class ArrayItem extends AbstractContext
     public function castToArray(): array
     {
         return [
-            'key' => $this->getKey()?->toArray(),
+            'key'   => $this->getKey()?->toArray(),
             'value' => $this->getValue()?->toArray(),
 
         ] + $this->getAutoCompletingValueData();

@@ -54,7 +54,7 @@ class Context
             return $this;
         }
 
-        $newContext = new static();
+        $newContext = new static;
 
         $this->children[] = $newContext;
 
@@ -99,7 +99,7 @@ class Context
     {
         $param = array_filter(
             $this->methodDefinitionParams,
-            fn($param) => $param['name'] === $name,
+            fn ($param) => $param['name'] === $name,
         );
 
         if (count($param)) {
@@ -120,21 +120,21 @@ class Context
     public function toArray()
     {
         return [
-            'classDefinition' => $this->classDefinition,
-            'implements' => $this->implements,
-            'extends' => $this->extends,
-            'methodDefinition' => $this->methodDefinition,
+            'classDefinition'        => $this->classDefinition,
+            'implements'             => $this->implements,
+            'extends'                => $this->extends,
+            'methodDefinition'       => $this->methodDefinition,
             'methodDefinitionParams' => $this->methodDefinitionParams,
-            'methodExistingArgs' => $this->methodExistingArgs,
-            'classUsed' => $this->classUsed,
-            'methodUsed' => $this->methodUsed,
-            'parent' => $this->parent?->toArray(),
-            'variables' => $this->variables,
-            'definedProperties' => $this->definedProperties,
-            'fillingInArrayKey' => $this->fillingInArrayKey,
-            'fillingInArrayValue' => $this->fillingInArrayValue,
-            'paramIndex' => $this->paramIndex,
-            'children' => array_map(fn($child) => $child->toArray(), $this->children),
+            'methodExistingArgs'     => $this->methodExistingArgs,
+            'classUsed'              => $this->classUsed,
+            'methodUsed'             => $this->methodUsed,
+            'parent'                 => $this->parent?->toArray(),
+            'variables'              => $this->variables,
+            'definedProperties'      => $this->definedProperties,
+            'fillingInArrayKey'      => $this->fillingInArrayKey,
+            'fillingInArrayValue'    => $this->fillingInArrayValue,
+            'paramIndex'             => $this->paramIndex,
+            'children'               => array_map(fn ($child) => $child->toArray(), $this->children),
         ];
     }
 

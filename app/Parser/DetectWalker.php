@@ -3,7 +3,7 @@
 namespace App\Parser;
 
 use App\Support\Debugs;
-use Illuminate\Contracts\Database\Query\Expression;
+use Illuminate\Support\Str;
 use Microsoft\PhpParser\MissingToken;
 use Microsoft\PhpParser\Node;
 use Microsoft\PhpParser\Node\Expression\AnonymousFunctionCreationExpression;
@@ -27,7 +27,6 @@ use Microsoft\PhpParser\SkippedToken;
 use Microsoft\PhpParser\Token;
 use Stillat\BladeParser\Document\Document;
 use Stillat\BladeParser\Nodes\DirectiveNode;
-use Illuminate\Support\Str;
 use Stillat\BladeParser\Nodes\EchoNode;
 
 class DetectWalker
@@ -49,7 +48,7 @@ class DetectWalker
     public function __construct(protected string $document, $debug = false)
     {
         $this->debug = $debug;
-        $this->sourceFile = (new Parser())->parseSourceFile(trim($this->document));
+        $this->sourceFile = (new Parser)->parseSourceFile(trim($this->document));
         $this->context = new DetectContext;
     }
 
@@ -70,7 +69,7 @@ class DetectWalker
         }
 
         // TODO: These results are not unique maybe?
-        return collect($this->items)->unique(fn($item) => json_encode($item))->values();
+        return collect($this->items)->unique(fn ($item) => json_encode($item))->values();
     }
 
     protected function parsePotentialBlade(InlineHtml $node)
@@ -104,14 +103,14 @@ class DetectWalker
         $position = 0;
         $line = 0;
 
-        $argPositions = $node->arguments->getArgValues()->map(function ($arg) use ($node, &$arguments, &$position, &$line) {
+        $argPositions = $node->arguments->getArgValues()->map(function ($arg) use (&$arguments, &$position, &$line) {
             $isString = Str::startsWith($arg, ['"', "'"]) && Str::endsWith($arg, ['"', "'"]);
 
             if (!$isString) {
                 return [
-                    'line' => 0,
+                    'line'  => 0,
                     'start' => 0,
-                    'end' => 0,
+                    'end'   => 0,
                 ];
             }
 
@@ -144,9 +143,9 @@ class DetectWalker
             $position = $actualEnd;
 
             return [
-                'line' => $line,
+                'line'  => $line,
                 'start' => $actualStart - 1,
-                'end' => $actualEnd - 3,
+                'end'   => $actualEnd - 3,
             ];
         });
 
@@ -155,7 +154,7 @@ class DetectWalker
 
             if (!$isString) {
                 return [
-                    'type' => 'unknown',
+                    'type'  => 'unknown',
                     'value' => $arg,
                 ];
             }
@@ -171,14 +170,14 @@ class DetectWalker
             }
 
             return [
-                'type' => 'string',
+                'type'  => 'string',
                 'value' => $arg,
                 'start' => [
-                    'line' => $node->position->startLine + $argPositions[$index]['line'] - 1,
+                    'line'   => $node->position->startLine + $argPositions[$index]['line'] - 1,
                     'column' => $offset + $argPositions[$index]['start'],
                 ],
                 'end' => [
-                    'line' => $node->position->startLine +  $argPositions[$index]['line'] - 1,
+                    'line'   => $node->position->startLine + $argPositions[$index]['line'] - 1,
                     'column' => $offset + $argPositions[$index]['end'],
                 ],
             ];
@@ -191,7 +190,7 @@ class DetectWalker
     {
         if ($node->callableExpression instanceof QualifiedName) {
             $this->parseQualifiedCallExpression($node);
-        } else if ($node->callableExpression instanceof MemberAccessExpression || $node->callableExpression instanceof ScopedPropertyAccessExpression) {
+        } elseif ($node->callableExpression instanceof MemberAccessExpression || $node->callableExpression instanceof ScopedPropertyAccessExpression) {
             $this->parseMemberAccessCallExpression($node);
         } else {
             // dd($child->callableExpression, 'unknown');
@@ -240,7 +239,6 @@ class DetectWalker
             }
         }
 
-
         // if ($item->classUsed === null) {
         //     dd($node->getParent(), $node->getText());
         // }
@@ -261,14 +259,14 @@ class DetectWalker
         $this->items[] = $item->toArray();
     }
 
-    protected function parseExpressionStatement(ExpressionStatement | ReturnStatement | CallExpression $node)
+    protected function parseExpressionStatement(ExpressionStatement|ReturnStatement|CallExpression $node)
     {
         $callable = $node instanceof CallExpression ? $node->callableExpression : $node->expression->callableExpression ?? null;
 
         if ($callable instanceof QualifiedName) {
             // TODO: This foolproof?
             $this->context->methodUsed = (string) ($callable->getResolvedName() ?? $callable->getText());
-        } else if ($callable instanceof MemberAccessExpression || $callable instanceof ScopedPropertyAccessExpression) {
+        } elseif ($callable instanceof MemberAccessExpression || $callable instanceof ScopedPropertyAccessExpression) {
             $this->context->methodUsed = $callable->memberName->getFullText($this->sourceFile->getFileContents());
         }
 
@@ -372,9 +370,9 @@ class DetectWalker
         $this->debug('init new context');
 
         $this->items[] = [
-            'method' => $this->context->methodUsed,
-            'value' => $this->context->methodExistingArgs,
-            'class' => $this->context->classUsed,
+            'method'     => $this->context->methodUsed,
+            'value'      => $this->context->methodExistingArgs,
+            'class'      => $this->context->classUsed,
             'paramIndex' => $this->context->paramIndex,
         ];
 
@@ -384,8 +382,8 @@ class DetectWalker
     protected function parseArgument($argument)
     {
         if ($argument === null) {
-            return  [
-                'type' => 'null',
+            return [
+                'type'  => 'null',
                 'value' => null,
             ];
         }
@@ -400,15 +398,15 @@ class DetectWalker
             );
 
             return [
-                'type' => 'string',
+                'type'  => 'string',
                 'value' => $argument->getStringContentsText(),
                 // 'index' => $this->context->paramIndex,
                 'start' => [
-                    'line' => $range->start->line,
+                    'line'   => $range->start->line,
                     'column' => $range->start->character,
                 ],
                 'end' => [
-                    'line' => $range->end->line,
+                    'line'   => $range->end->line,
                     'column' => $range->end->character,
                 ],
             ];
@@ -421,7 +419,7 @@ class DetectWalker
             if ($argument->arrayElements) {
                 foreach ($argument->arrayElements->getElements() as $element) {
                     $array[] = [
-                        'key' => $this->parseArgument($element->elementKey),
+                        'key'   => $this->parseArgument($element->elementKey),
                         'value' => $this->parseArgument($element->elementValue),
                     ];
 
@@ -434,14 +432,14 @@ class DetectWalker
             }
 
             return [
-                'type' => 'array',
+                'type'  => 'array',
                 'value' => $array,
             ];
         }
 
         if ($argument instanceof MissingToken || $argument instanceof SkippedToken) {
             return [
-                'type' => 'missing',
+                'type'  => 'missing',
                 'value' => $argument->getText($this->sourceFile->getFullText()),
             ];
         }
@@ -453,14 +451,14 @@ class DetectWalker
                 foreach ($argument->parameters->getElements() as $element) {
                     $param = [
                         'types' => [],
-                        'name' => $element->getName(),
+                        'name'  => $element->getName(),
                     ];
 
                     if ($element->typeDeclarationList) {
                         foreach ($element->typeDeclarationList->getValues() as $type) {
                             if ($type instanceof Token) {
                                 $param['types'][] = $type->getText($this->sourceFile->getFullText());
-                            } else if ($type instanceof QualifiedName) {
+                            } elseif ($type instanceof QualifiedName) {
                                 $param['types'][] = (string) $type->getResolvedName();
                             } else {
                                 $this->debug('unknown type', $type::class);
@@ -473,14 +471,14 @@ class DetectWalker
             }
 
             return [
-                'type' => 'closure',
+                'type'      => 'closure',
                 'arguments' => $args,
             ];
         }
 
         if ($argument instanceof ObjectCreationExpression) {
             $result = [
-                'type' => 'object',
+                'type'  => 'object',
                 'value' => (string) $argument->classTypeDesignator->getResolvedName(),
             ];
 
@@ -515,7 +513,7 @@ class DetectWalker
         }
 
         return [
-            'type' => 'unknown',
+            'type'  => 'unknown',
             'value' => $argument->getText(),
         ];
 
@@ -534,7 +532,7 @@ class DetectWalker
             // ['
             $this->context->fillingInArrayKey = true;
             $this->context->fillingInArrayValue = true;
-        } else if ($lastEl['value']['type'] === 'missing') {
+        } elseif ($lastEl['value']['type'] === 'missing') {
             // We have a key, but no value, looks like this:
             // ['key' => '
             $this->context->fillingInArrayValue = true;
@@ -566,7 +564,7 @@ class DetectWalker
                         $this->initNewContext();
                         $this->parseExpressionStatement($lastValue->resultExpression);
                     };
-                } else if ($lastValue->compoundStatementOrSemicolon instanceof CompoundStatementNode) {
+                } elseif ($lastValue->compoundStatementOrSemicolon instanceof CompoundStatementNode) {
                     $this->postArgumentParsingCallback = function () use ($lastValue) {
                         // Dive into the closure
                         $this->initNewContext();

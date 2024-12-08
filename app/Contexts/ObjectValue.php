@@ -10,7 +10,7 @@ class ObjectValue extends AbstractContext
 
     public function init()
     {
-        $this->arguments = new Arguments();
+        $this->arguments = new Arguments;
     }
 
     public function type(): string

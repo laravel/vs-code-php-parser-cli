@@ -8,6 +8,7 @@ class Parameters extends AbstractContext
     {
         return 'parameters';
     }
+
     public function toArray(): array
     {
         return parent::toArray()['children'];

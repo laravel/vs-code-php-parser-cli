@@ -2,8 +2,8 @@
 
 namespace App\Parsers;
 
-use App\Contexts\Assignment;
 use App\Contexts\AbstractContext;
+use App\Contexts\Assignment;
 use Microsoft\PhpParser\Node\Expression\AssignmentExpression;
 
 class AssignmentExpressionParser extends AbstractParser

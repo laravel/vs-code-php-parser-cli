@@ -14,7 +14,7 @@ class FunctionDeclarationParser extends AbstractParser
     public function parse(FunctionDeclaration $node)
     {
         $this->context->methodDefinition = array_map(
-            fn(Token $part) => $part->getText(SourceFile::fullText()),
+            fn (Token $part) => $part->getText(SourceFile::fullText()),
             $node->getNameParts(),
         );
 
@@ -22,14 +22,14 @@ class FunctionDeclarationParser extends AbstractParser
             foreach ($node->parameters->getElements() as $element) {
                 $param = [
                     'types' => [],
-                    'name' => $element->getName(),
+                    'name'  => $element->getName(),
                 ];
 
                 if ($element->typeDeclarationList) {
                     foreach ($element->typeDeclarationList->getValues() as $type) {
                         if ($type instanceof Token) {
                             $param['types'][] = $type->getText(SourceFile::fullText());
-                        } else if ($type instanceof QualifiedName) {
+                        } elseif ($type instanceof QualifiedName) {
                             $param['types'][] = (string) $type->getResolvedName();
                         } else {
                             $this->debug('unknown type', $type::class);

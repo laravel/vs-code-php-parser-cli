@@ -2,8 +2,8 @@
 
 namespace App\Parsers;
 
-use App\Contexts\Argument;
 use App\Contexts\AbstractContext;
+use App\Contexts\Argument;
 use App\Contexts\MethodCall;
 use App\Parser\SourceFile;
 use Microsoft\PhpParser\Node\Expression\ScopedPropertyAccessExpression;

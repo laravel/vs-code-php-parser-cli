@@ -2,8 +2,8 @@
 
 namespace App\Parsers;
 
-use App\Contexts\ObjectValue;
 use App\Contexts\AbstractContext;
+use App\Contexts\ObjectValue;
 use Microsoft\PhpParser\Node\Expression\ObjectCreationExpression;
 
 class ObjectCreationExpressionParser extends AbstractParser

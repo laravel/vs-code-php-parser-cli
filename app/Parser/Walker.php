@@ -7,7 +7,6 @@ use App\Support\Debugs;
 use Illuminate\Support\Facades\File;
 use Microsoft\PhpParser\MissingToken;
 use Microsoft\PhpParser\Node;
-use Microsoft\PhpParser\Node\ArrayElement;
 use Microsoft\PhpParser\Node\ClassMembersNode;
 use Microsoft\PhpParser\Node\DelimitedList\ParameterDeclarationList;
 use Microsoft\PhpParser\Node\Expression\AnonymousFunctionCreationExpression;
@@ -50,7 +49,7 @@ class Walker
     public function __construct(protected string $document, $debug = false)
     {
         $this->debug = $debug;
-        $this->sourceFile = (new Parser())->parseSourceFile(trim($this->document));
+        $this->sourceFile = (new Parser)->parseSourceFile(trim($this->document));
         $this->context = new Context;
     }
 
@@ -176,7 +175,7 @@ class Walker
         return $this->context;
     }
 
-    protected function parse(Node | Token $node)
+    protected function parse(Node|Token $node)
     {
         if ($node instanceof Node) {
             $this->parseNode($node);
@@ -202,11 +201,11 @@ class Walker
             FunctionDeclaration::class,
             MethodDeclaration::class => $this->parseFunctionDeclaration($node),
             ExpressionStatement::class, CallExpression::class => $this->parseExpressionStatement($node),
-            AssignmentExpression::class => $this->parseAssignmentExpression($node),
-            PropertyDeclaration::class => $this->parsePropertyDeclaration($node),
-            ReturnStatement::class => $this->parseExpressionStatement($node),
+            AssignmentExpression::class     => $this->parseAssignmentExpression($node),
+            PropertyDeclaration::class      => $this->parsePropertyDeclaration($node),
+            ReturnStatement::class          => $this->parseExpressionStatement($node),
             ParameterDeclarationList::class => $this->parseParameterDeclarationList($node),
-            default => null,
+            default                         => null,
         };
     }
 
@@ -215,14 +214,14 @@ class Walker
         foreach ($node->getElements() as $element) {
             $param = [
                 'types' => [],
-                'name' => $element->getName(),
+                'name'  => $element->getName(),
             ];
 
             if ($element->typeDeclarationList) {
                 foreach ($element->typeDeclarationList->getValues() as $type) {
                     if ($type instanceof Token) {
                         $param['types'][] = $type->getText($this->sourceFile->getFullText());
-                    } else if ($type instanceof QualifiedName) {
+                    } elseif ($type instanceof QualifiedName) {
                         $param['types'][] = (string) $type->getResolvedName();
                     } else {
                         $this->debug('unknown type', $type::class);
@@ -254,7 +253,7 @@ class Walker
             foreach ($node->typeDeclarationList->getValues() as $type) {
                 if ($type instanceof Token) {
                     $property['types'][] = $type->getText($this->sourceFile->getFullText());
-                } else if ($type instanceof QualifiedName) {
+                } elseif ($type instanceof QualifiedName) {
                     $property['types'][] = (string) $type->getResolvedName();
                 } else {
                     $this->debug('unknown type', $type::class);
@@ -287,13 +286,13 @@ class Walker
         }
     }
 
-    protected function parseFunctionDeclaration(FunctionDeclaration | MethodDeclaration $node)
+    protected function parseFunctionDeclaration(FunctionDeclaration|MethodDeclaration $node)
     {
         if ($node instanceof MethodDeclaration) {
             $this->context->methodDefinition = $node->getName();
         } else {
             $this->context->methodDefinition = array_map(
-                fn(Token $part) => $part->getText($this->sourceFile->getFullText()),
+                fn (Token $part) => $part->getText($this->sourceFile->getFullText()),
                 $node->getNameParts(),
             );
         }
@@ -302,14 +301,14 @@ class Walker
             foreach ($node->parameters->getElements() as $element) {
                 $param = [
                     'types' => [],
-                    'name' => $element->getName(),
+                    'name'  => $element->getName(),
                 ];
 
                 if ($element->typeDeclarationList) {
                     foreach ($element->typeDeclarationList->getValues() as $type) {
                         if ($type instanceof Token) {
                             $param['types'][] = $type->getText($this->sourceFile->getFullText());
-                        } else if ($type instanceof QualifiedName) {
+                        } elseif ($type instanceof QualifiedName) {
                             $param['types'][] = (string) $type->getResolvedName();
                         } else {
                             $this->debug('unknown type', $type::class);
@@ -322,14 +321,14 @@ class Walker
         }
     }
 
-    protected function parseExpressionStatement(ExpressionStatement | ReturnStatement | CallExpression $node)
+    protected function parseExpressionStatement(ExpressionStatement|ReturnStatement|CallExpression $node)
     {
         $callable = $node instanceof CallExpression ? $node->callableExpression : $node->expression->callableExpression ?? null;
 
         if ($callable instanceof QualifiedName) {
             // TODO: This foolproof?
             $this->context->methodUsed = (string) ($callable->getResolvedName() ?? $callable->getText());
-        } else if ($callable instanceof MemberAccessExpression || $callable instanceof ScopedPropertyAccessExpression) {
+        } elseif ($callable instanceof MemberAccessExpression || $callable instanceof ScopedPropertyAccessExpression) {
             $this->context->methodUsed = $callable->memberName->getFullText($this->sourceFile->getFileContents());
         }
 
@@ -436,8 +435,8 @@ class Walker
     protected function parseArgument($argument)
     {
         if ($argument === null) {
-            return  [
-                'type' => 'null',
+            return [
+                'type'  => 'null',
                 'value' => null,
             ];
         }
@@ -446,7 +445,7 @@ class Walker
 
         if ($argument instanceof StringLiteral) {
             return [
-                'type' => 'string',
+                'type'  => 'string',
                 'value' => $argument->getStringContentsText(),
             ];
         }
@@ -458,7 +457,7 @@ class Walker
             if ($argument->arrayElements) {
                 foreach ($argument->arrayElements->getElements() as $element) {
                     $array[] = [
-                        'key' => $this->parseArgument($element->elementKey),
+                        'key'   => $this->parseArgument($element->elementKey),
                         'value' => $this->parseArgument($element->elementValue),
                     ];
 
@@ -471,14 +470,14 @@ class Walker
             }
 
             return [
-                'type' => 'array',
+                'type'  => 'array',
                 'value' => $array,
             ];
         }
 
         if ($argument instanceof MissingToken || $argument instanceof SkippedToken) {
             return [
-                'type' => 'missing',
+                'type'  => 'missing',
                 'value' => $argument->getText($this->sourceFile->getFullText()),
             ];
         }
@@ -490,14 +489,14 @@ class Walker
                 foreach ($argument->parameters->getElements() as $element) {
                     $param = [
                         'types' => [],
-                        'name' => $element->getName(),
+                        'name'  => $element->getName(),
                     ];
 
                     if ($element->typeDeclarationList) {
                         foreach ($element->typeDeclarationList->getValues() as $type) {
                             if ($type instanceof Token) {
                                 $param['types'][] = $type->getText($this->sourceFile->getFullText());
-                            } else if ($type instanceof QualifiedName) {
+                            } elseif ($type instanceof QualifiedName) {
                                 $param['types'][] = (string) $type->getResolvedName();
                             } else {
                                 $this->debug('unknown type', $type::class);
@@ -510,14 +509,14 @@ class Walker
             }
 
             return [
-                'type' => 'closure',
+                'type'      => 'closure',
                 'arguments' => $args,
             ];
         }
 
         if ($argument instanceof ObjectCreationExpression) {
             $result = [
-                'type' => 'object',
+                'type'  => 'object',
                 'value' => (string) $argument->classTypeDesignator->getResolvedName(),
             ];
 
@@ -552,7 +551,7 @@ class Walker
         }
 
         return [
-            'type' => 'unknown',
+            'type'  => 'unknown',
             'value' => $argument->getText(),
         ];
 
@@ -571,7 +570,7 @@ class Walker
             // ['
             $this->context->fillingInArrayKey = true;
             $this->context->fillingInArrayValue = true;
-        } else if ($lastEl['value']['type'] === 'missing') {
+        } elseif ($lastEl['value']['type'] === 'missing') {
             // We have a key, but no value, looks like this:
             // ['key' => '
             $this->context->fillingInArrayValue = true;
@@ -603,7 +602,7 @@ class Walker
                         $this->initNewContext();
                         $this->parseExpressionStatement($lastValue->resultExpression);
                     };
-                } else if ($lastValue->compoundStatementOrSemicolon instanceof CompoundStatementNode) {
+                } elseif ($lastValue->compoundStatementOrSemicolon instanceof CompoundStatementNode) {
                     $this->postArgumentParsingCallback = function () use ($lastValue) {
                         // Dive into the closure
                         $this->initNewContext();

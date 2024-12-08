@@ -10,7 +10,7 @@ class ClosureValue extends AbstractContext implements HasParameters
 
     public function init()
     {
-        $this->parameters = new Parameters();
+        $this->parameters = new Parameters;
     }
 
     public function type(): string

@@ -12,7 +12,7 @@ class MethodCall extends AbstractContext
 
     public function init()
     {
-        $this->arguments = new Arguments();
+        $this->arguments = new Arguments;
     }
 
     public function type(): string
@@ -23,8 +23,8 @@ class MethodCall extends AbstractContext
     public function castToArray(): array
     {
         return [
-            'name' => $this->name,
-            'class' => $this->class,
+            'name'      => $this->name,
+            'class'     => $this->class,
             'arguments' => $this->arguments->toArray(),
         ];
     }

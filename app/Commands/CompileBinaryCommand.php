@@ -2,7 +2,6 @@
 
 namespace App\Commands;
 
-use App\Parser\Walker;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Process;
 use LaravelZero\Framework\Commands\Command;
@@ -31,7 +30,6 @@ class CompileBinaryCommand extends Command
         } else {
             confirm('Continue?', true);
         }
-
 
         $extensions = collect([
             'bcmath',

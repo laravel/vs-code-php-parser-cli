@@ -22,18 +22,18 @@ class ArrayValue extends AbstractContext
 
         if (count($this->children) === 0) {
             return [
-                'autocompletingKey' => true,
+                'autocompletingKey'   => true,
                 'autocompletingValue' => true,
             ];
         }
 
         $valueToAutocomplete = collect($this->children)->first(
-            fn($child) => $child->toArray()['autocompletingValue'] ?? false,
+            fn ($child) => $child->toArray()['autocompletingValue'] ?? false,
         );
 
         if ($valueToAutocomplete) {
             return [
-                'autocompletingKey' => false,
+                'autocompletingKey'   => false,
                 'autocompletingValue' => true,
             ];
         }
@@ -41,7 +41,7 @@ class ArrayValue extends AbstractContext
         $firstChild = $this->children[0];
 
         return [
-            'autocompletingKey' => $firstChild->hasKey,
+            'autocompletingKey'   => $firstChild->hasKey,
             'autocompletingValue' => !$firstChild->hasKey,
         ];
     }

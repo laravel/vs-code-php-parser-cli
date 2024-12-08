@@ -2,8 +2,8 @@
 
 namespace App\Parsers;
 
-use App\Contexts\ClosureValue;
 use App\Contexts\AbstractContext;
+use App\Contexts\ClosureValue;
 
 class ArrowFunctionCreationExpressionParser extends AbstractParser
 {
@@ -14,6 +14,6 @@ class ArrowFunctionCreationExpressionParser extends AbstractParser
 
     public function initNewContext(): ?AbstractContext
     {
-        return new ClosureValue();
+        return new ClosureValue;
     }
 }

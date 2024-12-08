@@ -23,7 +23,7 @@ class Assignment extends AbstractContext
     public function castToArray(): array
     {
         return [
-            'name' => $this->name,
+            'name'  => $this->name,
             'value' => $this->value->toArray(),
         ];
     }

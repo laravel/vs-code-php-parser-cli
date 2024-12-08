@@ -20,7 +20,7 @@ class ParseCommand extends Command
             $code = file_get_contents(__DIR__ . '/../../tests/snippets/parse/' . $this->option('from-file') . '.php');
         }
 
-        $walker = new Walker($code, !!$this->option('debug'));
+        $walker = new Walker($code, (bool) $this->option('debug'));
         $result = $walker->walk();
 
         if (app()->isLocal()) {

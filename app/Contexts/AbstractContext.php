@@ -44,7 +44,7 @@ abstract class AbstractContext
         return $newContext;
     }
 
-    public function searchForVar(string $name): AssignmentValue | string | null
+    public function searchForVar(string $name): AssignmentValue|string|null
     {
         if ($this instanceof ClosureValue) {
             foreach ($this->parameters->children as $param) {
@@ -61,6 +61,15 @@ abstract class AbstractContext
         }
 
         return $this->parent?->searchForVar($name) ?? null;
+    }
+
+    public function searchForProperty(string $name)
+    {
+        if ($this instanceof ClassDefinition) {
+            return collect($this->properties)->first(fn ($prop) => $prop['name'] === $name);
+        }
+
+        return $this->parent?->searchForProperty($name) ?? null;
     }
 
     public function pristine(): bool
@@ -80,7 +89,7 @@ abstract class AbstractContext
             $this->autocompleting ? ['autocompleting' => true] : [],
             $this->castToArray(),
             ($this->label !== '') ? ['label' => $this->label] : [],
-            ($this->hasChildren) ? ['children' => array_map(fn($child) => $child->toArray(), $this->children)] : [],
+            ($this->hasChildren) ? ['children' => array_map(fn ($child) => $child->toArray(), $this->children)] : [],
         );
     }
 

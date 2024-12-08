@@ -2,8 +2,8 @@
 
 namespace App\Parsers;
 
-use App\Contexts\ArrayValue;
 use App\Contexts\AbstractContext;
+use App\Contexts\ArrayValue;
 use Microsoft\PhpParser\MissingToken;
 use Microsoft\PhpParser\Node\Expression\ArrayCreationExpression;
 

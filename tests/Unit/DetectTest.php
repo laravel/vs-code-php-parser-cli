@@ -9,8 +9,8 @@ function detect($values)
 
 function detectFromArray($values)
 {
-    return array_map(fn($v) => array_merge([
-        'class' => null,
+    return array_map(fn ($v) => array_merge([
+        'class'  => null,
         'method' => null,
         'params' => [],
     ], $v), $values);
@@ -32,17 +32,17 @@ test('extract functions and string params', function () {
         [
             [
                 'method' => 'basicFunc',
-                'class' => NULL,
+                'class'  => null,
                 'params' => [
                     [
-                        'type' => 'string',
+                        'type'  => 'string',
                         'value' => 'whatever',
                         'start' => [
-                            'line' => 9,
+                            'line'   => 9,
                             'column' => 10,
                         ],
                         'end' => [
-                            'line' => 9,
+                            'line'   => 9,
                             'column' => 18,
                         ],
                     ],
@@ -50,17 +50,17 @@ test('extract functions and string params', function () {
             ],
             [
                 'method' => 'name',
-                'class' => 'Illuminate\\Support\\Facades\\Route',
+                'class'  => 'Illuminate\\Support\\Facades\\Route',
                 'params' => [
                     [
-                        'type' => 'string',
+                        'type'  => 'string',
                         'value' => 'home.show',
                         'start' => [
-                            'line' => 11,
+                            'line'   => 11,
                             'column' => 55,
                         ],
                         'end' => [
-                            'line' => 11,
+                            'line'   => 11,
                             'column' => 64,
                         ],
                     ],
@@ -68,47 +68,47 @@ test('extract functions and string params', function () {
             ],
             [
                 'method' => 'get',
-                'class' => 'Illuminate\\Support\\Facades\\Route',
+                'class'  => 'Illuminate\\Support\\Facades\\Route',
                 'params' => [
                     [
-                        'type' => 'string',
+                        'type'  => 'string',
                         'value' => '/',
                         'start' => [
-                            'line' => 11,
+                            'line'   => 11,
                             'column' => 11,
                         ],
                         'end' => [
-                            'line' => 11,
+                            'line'   => 11,
                             'column' => 12,
                         ],
                     ],
                     [
-                        'type' => 'array',
+                        'type'  => 'array',
                         'value' => [
                             [
                                 'key' => [
-                                    'type' => 'null',
-                                    'value' => NULL,
+                                    'type'  => 'null',
+                                    'value' => null,
                                 ],
                                 'value' => [
-                                    'type' => 'unknown',
+                                    'type'  => 'unknown',
                                     'value' => 'HomeController::class',
                                 ],
                             ],
                             [
                                 'key' => [
-                                    'type' => 'null',
-                                    'value' => NULL,
+                                    'type'  => 'null',
+                                    'value' => null,
                                 ],
                                 'value' => [
-                                    'type' => 'string',
+                                    'type'  => 'string',
                                     'value' => 'show',
                                     'start' => [
-                                        'line' => 11,
+                                        'line'   => 11,
                                         'column' => 40,
                                     ],
                                     'end' => [
-                                        'line' => 11,
+                                        'line'   => 11,
                                         'column' => 44,
                                     ],
                                 ],
@@ -119,27 +119,27 @@ test('extract functions and string params', function () {
             ],
             [
                 'method' => 'group',
-                'class' => 'Illuminate\\Support\\Facades\\Route',
+                'class'  => 'Illuminate\\Support\\Facades\\Route',
                 'params' => [
                     [
-                        'type' => 'closure',
+                        'type'      => 'closure',
                         'arguments' => [],
                     ],
                 ],
             ],
             [
                 'method' => 'middleware',
-                'class' => 'Illuminate\\Support\\Facades\\Route',
+                'class'  => 'Illuminate\\Support\\Facades\\Route',
                 'params' => [
                     [
-                        'type' => 'string',
+                        'type'  => 'string',
                         'value' => 'signed',
                         'start' => [
-                            'line' => 13,
+                            'line'   => 13,
                             'column' => 18,
                         ],
                         'end' => [
-                            'line' => 13,
+                            'line'   => 13,
                             'column' => 24,
                         ],
                     ],
@@ -147,17 +147,17 @@ test('extract functions and string params', function () {
             ],
             [
                 'method' => 'name',
-                'class' => 'Illuminate\\Support\\Facades\\Route',
+                'class'  => 'Illuminate\\Support\\Facades\\Route',
                 'params' => [
                     [
-                        'type' => 'string',
+                        'type'  => 'string',
                         'value' => 'profile.edit',
                         'start' => [
-                            'line' => 15,
+                            'line'   => 15,
                             'column' => 68,
                         ],
                         'end' => [
-                            'line' => 15,
+                            'line'   => 15,
                             'column' => 80,
                         ],
                     ],
@@ -165,47 +165,47 @@ test('extract functions and string params', function () {
             ],
             [
                 'method' => 'get',
-                'class' => 'Illuminate\\Support\\Facades\\Route',
+                'class'  => 'Illuminate\\Support\\Facades\\Route',
                 'params' => [
                     [
-                        'type' => 'string',
+                        'type'  => 'string',
                         'value' => 'profile',
                         'start' => [
-                            'line' => 15,
+                            'line'   => 15,
                             'column' => 15,
                         ],
                         'end' => [
-                            'line' => 15,
+                            'line'   => 15,
                             'column' => 22,
                         ],
                     ],
                     [
-                        'type' => 'array',
+                        'type'  => 'array',
                         'value' => [
                             [
                                 'key' => [
-                                    'type' => 'null',
-                                    'value' => NULL,
+                                    'type'  => 'null',
+                                    'value' => null,
                                 ],
                                 'value' => [
-                                    'type' => 'unknown',
+                                    'type'  => 'unknown',
                                     'value' => 'ProfileController::class',
                                 ],
                             ],
                             [
                                 'key' => [
-                                    'type' => 'null',
-                                    'value' => NULL,
+                                    'type'  => 'null',
+                                    'value' => null,
                                 ],
                                 'value' => [
-                                    'type' => 'string',
+                                    'type'  => 'string',
                                     'value' => 'edit',
                                     'start' => [
-                                        'line' => 15,
+                                        'line'   => 15,
                                         'column' => 53,
                                     ],
                                     'end' => [
-                                        'line' => 15,
+                                        'line'   => 15,
                                         'column' => 57,
                                     ],
                                 ],
@@ -216,17 +216,17 @@ test('extract functions and string params', function () {
             ],
             [
                 'method' => 'name',
-                'class' => 'Illuminate\\Support\\Facades\\Route',
+                'class'  => 'Illuminate\\Support\\Facades\\Route',
                 'params' => [
                     [
-                        'type' => 'string',
+                        'type'  => 'string',
                         'value' => 'profile.edit',
                         'start' => [
-                            'line' => 15,
+                            'line'   => 15,
                             'column' => 68,
                         ],
                         'end' => [
-                            'line' => 15,
+                            'line'   => 15,
                             'column' => 80,
                         ],
                     ],
@@ -234,47 +234,47 @@ test('extract functions and string params', function () {
             ],
             [
                 'method' => 'get',
-                'class' => 'Illuminate\\Support\\Facades\\Route',
+                'class'  => 'Illuminate\\Support\\Facades\\Route',
                 'params' => [
                     [
-                        'type' => 'string',
+                        'type'  => 'string',
                         'value' => 'profile',
                         'start' => [
-                            'line' => 15,
+                            'line'   => 15,
                             'column' => 15,
                         ],
                         'end' => [
-                            'line' => 15,
+                            'line'   => 15,
                             'column' => 22,
                         ],
                     ],
                     [
-                        'type' => 'array',
+                        'type'  => 'array',
                         'value' => [
                             [
                                 'key' => [
-                                    'type' => 'null',
-                                    'value' => NULL,
+                                    'type'  => 'null',
+                                    'value' => null,
                                 ],
                                 'value' => [
-                                    'type' => 'unknown',
+                                    'type'  => 'unknown',
                                     'value' => 'ProfileController::class',
                                 ],
                             ],
                             [
                                 'key' => [
-                                    'type' => 'null',
-                                    'value' => NULL,
+                                    'type'  => 'null',
+                                    'value' => null,
                                 ],
                                 'value' => [
-                                    'type' => 'string',
+                                    'type'  => 'string',
                                     'value' => 'edit',
                                     'start' => [
-                                        'line' => 15,
+                                        'line'   => 15,
                                         'column' => 53,
                                     ],
                                     'end' => [
-                                        'line' => 15,
+                                        'line'   => 15,
                                         'column' => 57,
                                     ],
                                 ],
@@ -285,71 +285,71 @@ test('extract functions and string params', function () {
             ],
             [
                 'method' => 'group',
-                'class' => 'Illuminate\\Support\\Facades\\Route',
+                'class'  => 'Illuminate\\Support\\Facades\\Route',
                 'params' => [
                     [
-                        'type' => 'closure',
+                        'type'      => 'closure',
                         'arguments' => [],
                     ],
                 ],
             ],
             [
                 'method' => 'middleware',
-                'class' => 'Illuminate\\Support\\Facades\\Route',
+                'class'  => 'Illuminate\\Support\\Facades\\Route',
                 'params' => [
                     [
-                        'type' => 'array',
+                        'type'  => 'array',
                         'value' => [
                             [
                                 'key' => [
-                                    'type' => 'null',
-                                    'value' => NULL,
+                                    'type'  => 'null',
+                                    'value' => null,
                                 ],
                                 'value' => [
-                                    'type' => 'string',
+                                    'type'  => 'string',
                                     'value' => 'auth',
                                     'start' => [
-                                        'line' => 19,
+                                        'line'   => 19,
                                         'column' => 4,
                                     ],
                                     'end' => [
-                                        'line' => 19,
+                                        'line'   => 19,
                                         'column' => 8,
                                     ],
                                 ],
                             ],
                             [
                                 'key' => [
-                                    'type' => 'null',
-                                    'value' => NULL,
+                                    'type'  => 'null',
+                                    'value' => null,
                                 ],
                                 'value' => [
-                                    'type' => 'string',
+                                    'type'  => 'string',
                                     'value' => 'verified',
                                     'start' => [
-                                        'line' => 20,
+                                        'line'   => 20,
                                         'column' => 4,
                                     ],
                                     'end' => [
-                                        'line' => 20,
+                                        'line'   => 20,
                                         'column' => 12,
                                     ],
                                 ],
                             ],
                             [
                                 'key' => [
-                                    'type' => 'null',
-                                    'value' => NULL,
+                                    'type'  => 'null',
+                                    'value' => null,
                                 ],
                                 'value' => [
-                                    'type' => 'string',
+                                    'type'  => 'string',
                                     'value' => 'within-current-organization',
                                     'start' => [
-                                        'line' => 21,
+                                        'line'   => 21,
                                         'column' => 4,
                                     ],
                                     'end' => [
-                                        'line' => 21,
+                                        'line'   => 21,
                                         'column' => 31,
                                     ],
                                 ],
@@ -360,17 +360,17 @@ test('extract functions and string params', function () {
             ],
             [
                 'method' => 'name',
-                'class' => 'Illuminate\\Support\\Facades\\Route',
+                'class'  => 'Illuminate\\Support\\Facades\\Route',
                 'params' => [
                     [
-                        'type' => 'string',
+                        'type'  => 'string',
                         'value' => 'dashboard',
                         'start' => [
-                            'line' => 23,
+                            'line'   => 23,
                             'column' => 72,
                         ],
                         'end' => [
-                            'line' => 23,
+                            'line'   => 23,
                             'column' => 81,
                         ],
                     ],
@@ -378,17 +378,17 @@ test('extract functions and string params', function () {
             ],
             [
                 'method' => 'get',
-                'class' => 'Illuminate\\Support\\Facades\\Route',
+                'class'  => 'Illuminate\\Support\\Facades\\Route',
                 'params' => [
                     [
-                        'type' => 'string',
+                        'type'  => 'string',
                         'value' => 'dashboard',
                         'start' => [
-                            'line' => 23,
+                            'line'   => 23,
                             'column' => 15,
                         ],
                         'end' => [
-                            'line' => 23,
+                            'line'   => 23,
                             'column' => 81,
                         ],
                     ],
@@ -396,17 +396,17 @@ test('extract functions and string params', function () {
             ],
             [
                 'method' => 'name',
-                'class' => 'Illuminate\\Support\\Facades\\Route',
+                'class'  => 'Illuminate\\Support\\Facades\\Route',
                 'params' => [
                     [
-                        'type' => 'string',
+                        'type'  => 'string',
                         'value' => 'dashboard',
                         'start' => [
-                            'line' => 23,
+                            'line'   => 23,
                             'column' => 72,
                         ],
                         'end' => [
-                            'line' => 23,
+                            'line'   => 23,
                             'column' => 81,
                         ],
                     ],
@@ -414,47 +414,47 @@ test('extract functions and string params', function () {
             ],
             [
                 'method' => 'get',
-                'class' => 'Illuminate\\Support\\Facades\\Route',
+                'class'  => 'Illuminate\\Support\\Facades\\Route',
                 'params' => [
                     [
-                        'type' => 'string',
+                        'type'  => 'string',
                         'value' => 'dashboard',
                         'start' => [
-                            'line' => 23,
+                            'line'   => 23,
                             'column' => 15,
                         ],
                         'end' => [
-                            'line' => 23,
+                            'line'   => 23,
                             'column' => 81,
                         ],
                     ],
                     [
-                        'type' => 'array',
+                        'type'  => 'array',
                         'value' => [
                             [
                                 'key' => [
-                                    'type' => 'null',
-                                    'value' => NULL,
+                                    'type'  => 'null',
+                                    'value' => null,
                                 ],
                                 'value' => [
-                                    'type' => 'unknown',
+                                    'type'  => 'unknown',
                                     'value' => 'DashboardController::class',
                                 ],
                             ],
                             [
                                 'key' => [
-                                    'type' => 'null',
-                                    'value' => NULL,
+                                    'type'  => 'null',
+                                    'value' => null,
                                 ],
                                 'value' => [
-                                    'type' => 'string',
+                                    'type'  => 'string',
                                     'value' => 'show',
                                     'start' => [
-                                        'line' => 23,
+                                        'line'   => 23,
                                         'column' => 57,
                                     ],
                                     'end' => [
-                                        'line' => 23,
+                                        'line'   => 23,
                                         'column' => 61,
                                     ],
                                 ],
@@ -465,17 +465,17 @@ test('extract functions and string params', function () {
             ],
             [
                 'method' => 'name',
-                'class' => 'Illuminate\\Support\\Facades\\Route',
+                'class'  => 'Illuminate\\Support\\Facades\\Route',
                 'params' => [
                     [
-                        'type' => 'string',
+                        'type'  => 'string',
                         'value' => 'gitlab.webhook.store',
                         'start' => [
-                            'line' => 30,
+                            'line'   => 30,
                             'column' => 11,
                         ],
                         'end' => [
-                            'line' => 30,
+                            'line'   => 30,
                             'column' => 31,
                         ],
                     ],
@@ -483,27 +483,27 @@ test('extract functions and string params', function () {
             ],
             [
                 'method' => 'middleware',
-                'class' => 'Illuminate\\Support\\Facades\\Route',
+                'class'  => 'Illuminate\\Support\\Facades\\Route',
                 'params' => [
                     [
-                        'type' => 'unknown',
+                        'type'  => 'unknown',
                         'value' => 'VerifyGitLabWebhookRequest::class',
                     ],
                 ],
             ],
             [
                 'method' => 'withoutMiddleware',
-                'class' => 'Illuminate\\Support\\Facades\\Route',
+                'class'  => 'Illuminate\\Support\\Facades\\Route',
                 'params' => [
                     [
-                        'type' => 'string',
+                        'type'  => 'string',
                         'value' => 'web',
                         'start' => [
-                            'line' => 28,
+                            'line'   => 28,
                             'column' => 24,
                         ],
                         'end' => [
-                            'line' => 28,
+                            'line'   => 28,
                             'column' => 27,
                         ],
                     ],
@@ -511,47 +511,47 @@ test('extract functions and string params', function () {
             ],
             [
                 'method' => 'post',
-                'class' => 'Illuminate\\Support\\Facades\\Route',
+                'class'  => 'Illuminate\\Support\\Facades\\Route',
                 'params' => [
                     [
-                        'type' => 'string',
+                        'type'  => 'string',
                         'value' => 'gitlab/webhook',
                         'start' => [
-                            'line' => 27,
+                            'line'   => 27,
                             'column' => 12,
                         ],
                         'end' => [
-                            'line' => 27,
+                            'line'   => 27,
                             'column' => 26,
                         ],
                     ],
                     [
-                        'type' => 'array',
+                        'type'  => 'array',
                         'value' => [
                             [
                                 'key' => [
-                                    'type' => 'null',
-                                    'value' => NULL,
+                                    'type'  => 'null',
+                                    'value' => null,
                                 ],
                                 'value' => [
-                                    'type' => 'unknown',
+                                    'type'  => 'unknown',
                                     'value' => 'GitLabWebhookController::class',
                                 ],
                             ],
                             [
                                 'key' => [
-                                    'type' => 'null',
-                                    'value' => NULL,
+                                    'type'  => 'null',
+                                    'value' => null,
                                 ],
                                 'value' => [
-                                    'type' => 'string',
+                                    'type'  => 'string',
                                     'value' => 'store',
                                     'start' => [
-                                        'line' => 27,
+                                        'line'   => 27,
                                         'column' => 63,
                                     ],
                                     'end' => [
-                                        'line' => 27,
+                                        'line'   => 27,
                                         'column' => 68,
                                     ],
                                 ],
@@ -560,7 +560,7 @@ test('extract functions and string params', function () {
                     ],
                 ],
             ],
-        ]
+        ],
 
     ]));
 });

@@ -2,9 +2,8 @@
 
 namespace App\Parsers;
 
-use App\Contexts\Argument;
-use App\Contexts\AssignmentValue;
 use App\Contexts\AbstractContext;
+use App\Contexts\AssignmentValue;
 use App\Contexts\MethodCall;
 use App\Parser\SourceFile;
 use Microsoft\PhpParser\Node\Expression\MemberAccessExpression;
@@ -31,13 +30,12 @@ class MemberAccessExpressionParser extends AbstractParser
 
             if ($child instanceof Variable) {
                 if ($child->getName() === 'this') {
-                    dd('got this');
-                    $propName = $child->getParent()->memberName->getFullText($this->sourceFile->getFileContents());
+                    $propName = $child->getParent()->memberName->getFullText(SourceFile::fullText());
 
                     $result = $this->context->searchForProperty($propName);
 
                     if ($result) {
-                        $this->context->classUsed = $result['types'][0] ?? null;
+                        $this->context->class = $result['types'][0] ?? null;
                     }
 
                     continue;
@@ -60,7 +58,7 @@ class MemberAccessExpressionParser extends AbstractParser
 
     public function initNewContext(): ?AbstractContext
     {
-        if (!($this->context instanceof MethodCall)) {
+        if (!($this->context instanceof MethodCall) || $this->context->name !== null) {
             return new MethodCall;
         }
 

@@ -3,7 +3,6 @@
 namespace App\Commands;
 
 use App\Parser\DetectWalker;
-use App\Parser\Walker;
 use Illuminate\Support\Facades\File;
 use LaravelZero\Framework\Commands\Command;
 
@@ -23,7 +22,7 @@ class DetectCommand extends Command
 
         // file_put_contents(__DIR__ . '/code.txt', $this->argument('code'));
 
-        $walker = new DetectWalker($code, !!$this->option('debug'));
+        $walker = new DetectWalker($code, (bool) $this->option('debug'));
         $result = $walker->walk();
 
         if (app()->isLocal()) {

@@ -2,8 +2,8 @@
 
 namespace App\Parsers;
 
-use App\Contexts\MethodCall;
 use App\Contexts\AbstractContext;
+use App\Contexts\MethodCall;
 
 class ArgumentExpressionListParser extends AbstractParser
 {
