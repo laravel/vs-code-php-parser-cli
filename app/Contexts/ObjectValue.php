@@ -4,13 +4,14 @@ namespace App\Contexts;
 
 class ObjectValue extends AbstractContext
 {
-    public ?string $name = null;
+    public ?string $className = null;
 
     public Arguments $arguments;
 
     public function init()
     {
         $this->arguments = new Arguments;
+        $this->arguments->parent = $this;
     }
 
     public function type(): string
@@ -21,7 +22,8 @@ class ObjectValue extends AbstractContext
     public function castToArray(): array
     {
         return [
-            'name' => $this->name,
+            'className' => $this->className,
+            'arguments' => $this->arguments->toArray(),
         ];
     }
 }

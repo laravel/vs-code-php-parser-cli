@@ -4,15 +4,16 @@ namespace App\Contexts;
 
 class MethodCall extends AbstractContext
 {
-    public ?string $name = null;
+    public ?string $methodName = null;
 
-    public ?string $class = null;
+    public ?string $className = null;
 
     public Arguments $arguments;
 
     public function init()
     {
         $this->arguments = new Arguments;
+        $this->arguments->parent = $this;
     }
 
     public function type(): string
@@ -23,9 +24,14 @@ class MethodCall extends AbstractContext
     public function castToArray(): array
     {
         return [
-            'name'      => $this->name,
-            'class'     => $this->class,
-            'arguments' => $this->arguments->toArray(),
+            'methodName' => $this->methodName,
+            'className'  => $this->className,
+            'arguments'  => $this->arguments->toArray(),
         ];
+    }
+
+    public function name()
+    {
+        return $this->methodName;
     }
 }

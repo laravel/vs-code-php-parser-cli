@@ -19,11 +19,11 @@ class MemberAccessExpressionParser extends AbstractParser
 
     public function parse(MemberAccessExpression $node)
     {
-        $this->context->name = $node->memberName->getFullText(SourceFile::fullText());
+        $this->context->methodName = $node->memberName->getFullText(SourceFile::fullText());
 
         foreach ($node->getDescendantNodes() as $child) {
             if ($child instanceof QualifiedName) {
-                $this->context->class ??= (string) $child->getResolvedName();
+                $this->context->className ??= (string) $child->getResolvedName();
 
                 return $this->context;
             }
@@ -35,7 +35,7 @@ class MemberAccessExpressionParser extends AbstractParser
                     $result = $this->context->searchForProperty($propName);
 
                     if ($result) {
-                        $this->context->class = $result['types'][0] ?? null;
+                        $this->context->className = $result['types'][0] ?? null;
                     }
 
                     continue;
@@ -45,10 +45,14 @@ class MemberAccessExpressionParser extends AbstractParser
 
                 $result = $this->context->searchForVar($varName);
 
+                if (!$result) {
+                    return $this->context;
+                }
+
                 if ($result instanceof AssignmentValue) {
-                    $this->context->class = $result->getValue()['name'];
+                    $this->context->className = $result->getValue()['name'] ?? null;
                 } else {
-                    $this->context->class = $result;
+                    $this->context->className = $result;
                 }
             }
         }
@@ -58,7 +62,7 @@ class MemberAccessExpressionParser extends AbstractParser
 
     public function initNewContext(): ?AbstractContext
     {
-        if (!($this->context instanceof MethodCall) || $this->context->name !== null) {
+        if (!($this->context instanceof MethodCall) || $this->context->methodName !== null) {
             return new MethodCall;
         }
 

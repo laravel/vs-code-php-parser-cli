@@ -17,12 +17,12 @@ class CallExpressionParser extends AbstractParser
 
     public function parse(CallExpression $node)
     {
-        if ($this->context->name) {
+        if ($this->context->methodName) {
             return $this->context;
         }
 
         if ($node->callableExpression instanceof QualifiedName) {
-            $this->context->name = (string) ($node->callableExpression->getResolvedName() ?? $node->callableExpression->getText());
+            $this->context->methodName = (string) ($node->callableExpression->getResolvedName() ?? $node->callableExpression->getText());
         }
 
         $this->context->autocompleting = $node->closeParen instanceof MissingToken;

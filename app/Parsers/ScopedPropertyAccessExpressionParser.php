@@ -17,8 +17,8 @@ class ScopedPropertyAccessExpressionParser extends AbstractParser
 
     public function parse(ScopedPropertyAccessExpression $node)
     {
-        $this->context->name = $node->memberName->getFullText(SourceFile::fullText());
-        $this->context->class = (string) $node->scopeResolutionQualifier->getResolvedName();
+        $this->context->methodName = $node->memberName->getFullText(SourceFile::fullText());
+        $this->context->className = (string) $node->scopeResolutionQualifier->getResolvedName();
 
         return $this->context;
     }

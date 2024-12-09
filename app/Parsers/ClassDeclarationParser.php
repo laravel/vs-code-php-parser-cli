@@ -15,7 +15,7 @@ class ClassDeclarationParser extends AbstractParser
 
     public function parse(ClassDeclaration $node)
     {
-        $this->context->name = (string) $node->getNamespacedName();
+        $this->context->className = (string) $node->getNamespacedName();
 
         return $this->context;
     }

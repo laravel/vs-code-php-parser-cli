@@ -2,6 +2,8 @@
 
 namespace App\Contexts;
 
+use Illuminate\Support\Arr;
+
 abstract class AbstractContext
 {
     public array $children = [];
@@ -30,6 +32,53 @@ abstract class AbstractContext
         $this->freshObject = $this->freshArray();
     }
 
+    public function flip()
+    {
+        return array_merge(
+            Arr::except($this->toArray(), ['children']),
+            ['parent' => $this->parent?->flip()],
+        );
+    }
+
+    public function findAutocompleting(?AbstractContext $context = null)
+    {
+        $context = $context ?? $this;
+        $result = $this->seachForAutocompleting($context, true);
+        $lastResult = null;
+
+        while ($result !== null) {
+            $lastResult = $result;
+            $result = $this->seachForAutocompleting($result);
+        }
+
+        return $lastResult;
+    }
+
+    protected function seachForAutocompleting(AbstractContext $context, $checkCurrent = false)
+    {
+        if ($checkCurrent && $context->autocompleting && ($context instanceof MethodCall || $context instanceof ObjectValue)) {
+            return $context;
+        }
+
+        $publicProps = Arr::except(get_object_vars($context), ['freshObject', 'parent']);
+
+        foreach ($publicProps as $child) {
+            $child = is_array($child) ? $child : [$child];
+
+            foreach ($child as $subChild) {
+                if ($subChild instanceof AbstractContext) {
+                    $result = $this->findAutocompleting($subChild);
+
+                    if ($result) {
+                        return $result;
+                    }
+                }
+            }
+        }
+
+        return null;
+    }
+
     protected function freshArray()
     {
         return $this->toArray();
@@ -46,7 +95,7 @@ abstract class AbstractContext
 
     public function searchForVar(string $name): AssignmentValue|string|null
     {
-        if ($this instanceof ClosureValue) {
+        if (property_exists($this, 'parameters') && $this->parameters instanceof Parameters) {
             foreach ($this->parameters->children as $param) {
                 if ($param->name === $name) {
                     return $param->types[0] ?? null;
@@ -89,7 +138,9 @@ abstract class AbstractContext
             $this->autocompleting ? ['autocompleting' => true] : [],
             $this->castToArray(),
             ($this->label !== '') ? ['label' => $this->label] : [],
-            ($this->hasChildren) ? ['children' => array_map(fn ($child) => $child->toArray(), $this->children)] : [],
+            ($this->hasChildren)
+                ? ['children' => array_map(fn ($child) => $child->toArray(), $this->children)]
+                : [],
         );
     }
 

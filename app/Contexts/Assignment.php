@@ -13,6 +13,7 @@ class Assignment extends AbstractContext
     public function init()
     {
         $this->value = new AssignmentValue;
+        $this->value->parent = $this;
     }
 
     public function type(): string

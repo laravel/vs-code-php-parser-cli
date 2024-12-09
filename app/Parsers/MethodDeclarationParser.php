@@ -15,7 +15,7 @@ class MethodDeclarationParser extends AbstractParser
 
     public function parse(MethodDeclaration $node)
     {
-        $this->context->name = $node->getName();
+        $this->context->methodName = $node->getName();
 
         return $this->context;
     }

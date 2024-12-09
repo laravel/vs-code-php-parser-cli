@@ -20,7 +20,7 @@ class ParameterValue extends AbstractContext
 
         if ($child) {
             return [
-                'name' => $child->name,
+                'name' => $child->name(),
                 'type' => $child->type(),
             ];
         }

@@ -17,6 +17,7 @@ class Parameter extends AbstractContext
     public function init()
     {
         $this->value = new ParameterValue;
+        $this->value->parent = $this;
     }
 
     public function type(): string

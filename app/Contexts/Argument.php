@@ -9,8 +9,14 @@ class Argument extends AbstractContext
         return 'argument';
     }
 
-    public function toArray(): array
+    public function isAutoCompleting(): bool
     {
-        return parent::toArray()['children'][0] ?? [];
+        if ($this->autocompleting) {
+            return true;
+        }
+
+        return collect($this->children)->first(
+            fn ($child) => $child->autocompleting
+        ) !== null;
     }
 }

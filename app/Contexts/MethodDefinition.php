@@ -8,11 +8,12 @@ class MethodDefinition extends AbstractContext implements HasParameters
 {
     public Parameters $parameters;
 
-    public ?string $name = null;
+    public ?string $methodName = null;
 
     public function init()
     {
         $this->parameters = new Parameters;
+        $this->parameters->parent = $this;
     }
 
     public function type(): string
@@ -23,8 +24,8 @@ class MethodDefinition extends AbstractContext implements HasParameters
     public function castToArray(): array
     {
         return [
-            'name'       => $this->name,
-            'parameters' => $this->parameters->toArray(),
+            'methodName'       => $this->methodName,
+            'parameters'       => $this->parameters->toArray(),
         ];
     }
 }

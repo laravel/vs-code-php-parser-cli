@@ -4,7 +4,7 @@ namespace App\Contexts;
 
 class ClassDefinition extends AbstractContext
 {
-    public ?string $name = null;
+    public ?string $className = null;
 
     public ?string $extends = null;
 
@@ -20,10 +20,10 @@ class ClassDefinition extends AbstractContext
     public function castToArray(): array
     {
         return [
-            'name'       => $this->name,
-            'extends'    => $this->extends,
-            'implements' => $this->implements,
-            'properties' => $this->properties,
+            'className'       => $this->className,
+            'extends'         => $this->extends,
+            'implements'      => $this->implements,
+            'properties'      => $this->properties,
         ];
     }
 }

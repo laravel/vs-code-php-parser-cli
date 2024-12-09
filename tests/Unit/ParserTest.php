@@ -726,3 +726,5 @@ test('this reference', function () {
         ],
     ]));
 });
+
+test('object instantiation')->todo();

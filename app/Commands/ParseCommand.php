@@ -35,6 +35,13 @@ class ParseCommand extends Command
             }
         }
 
-        echo $result->toJson();
+        $autocompleting = $result->findAutocompleting();
+
+        echo json_encode($autocompleting->flip(), $this->option('debug') ? JSON_PRETTY_PRINT : 0);
+
+        // dd($autocompleting->flip(), 'Autocompleting');
+        // // $toAutocomplete = $this->findFirstAutocompleting($result->toArray()['children']);
+
+        // echo $result->toJson($this->option('debug') ? JSON_PRETTY_PRINT : 0);
     }
 }

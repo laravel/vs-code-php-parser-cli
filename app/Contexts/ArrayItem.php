@@ -17,7 +17,7 @@ class ArrayItem extends AbstractContext
 
     public function toArray(): array
     {
-        return Arr::except(parent::toArray(), ['children', 'type']);
+        return Arr::except(parent::toArray(), ['children']);
     }
 
     public function castToArray(): array

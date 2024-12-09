@@ -9,8 +9,18 @@ class Arguments extends AbstractContext
         return 'arguments';
     }
 
-    public function toArray(): array
+    public function castToArray(): array
     {
-        return parent::toArray()['children'];
+        $autocompletingIndex = collect($this->children)->search(
+            fn ($child) => $child->isAutoCompleting(),
+        );
+
+        if ($autocompletingIndex === false) {
+            $autocompletingIndex = count($this->children);
+        }
+
+        return [
+            'autocompletingIndex' => $autocompletingIndex,
+        ];
     }
 }
