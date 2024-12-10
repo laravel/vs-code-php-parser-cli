@@ -4,7 +4,6 @@ namespace App\Parsers;
 
 use App\Contexts\AbstractContext;
 use App\Contexts\Argument;
-use App\Contexts\MethodCall;
 use Microsoft\PhpParser\Node\Expression\ArgumentExpression;
 
 class ArgumentExpressionParser extends AbstractParser

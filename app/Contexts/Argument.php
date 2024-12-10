@@ -25,7 +25,7 @@ class Argument extends AbstractContext
         }
 
         return collect($this->children)->first(
-            fn($child) => $child->autocompleting
+            fn ($child) => $child->autocompleting
         ) !== null;
     }
 }

@@ -13,7 +13,7 @@ class CompileBinaryCommand extends Command
 {
     protected $signature = 'compile-binary';
 
-    protected $description = 'Parse the given PHP code';
+    protected $description = 'Compile the binary for the current version';
 
     public function handle(): void
     {

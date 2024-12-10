@@ -75,7 +75,7 @@ class DetectWalker
         }
 
         // TODO: These results are not unique maybe?
-        return collect($this->items)->unique(fn($item) => json_encode($item))->values();
+        return collect($this->items)->unique(fn ($item) => json_encode($item))->values();
     }
 
     protected function parsePotentialBlade(InlineHtml $node)
@@ -421,7 +421,7 @@ class DetectWalker
             return [
                 'type'  => 'string',
                 'value' => $argument->getStringContentsText(),
-                'name' =>  $argument->parent instanceof ArgumentExpression ? $argument->parent->name?->getText($this->sourceFile->getFullText()) : null,
+                'name'  => $argument->parent instanceof ArgumentExpression ? $argument->parent->name?->getText($this->sourceFile->getFullText()) : null,
                 'start' => [
                     'line'   => $range->start->line,
                     'column' => $range->start->character,

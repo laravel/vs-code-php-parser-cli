@@ -1,5 +1,13 @@
 {
     "preset": "laravel",
+    "exclude": [
+        "bin",
+        "source",
+        "downloads",
+        "builds",
+        "buildroot",
+        "tests/snippets"
+    ],
     "rules": {
         "concat_space": {
             "spacing": "one"
