@@ -7,6 +7,7 @@ use Illuminate\Support\Str;
 use Microsoft\PhpParser\MissingToken;
 use Microsoft\PhpParser\Node;
 use Microsoft\PhpParser\Node\Expression\AnonymousFunctionCreationExpression;
+use Microsoft\PhpParser\Node\Expression\ArgumentExpression;
 use Microsoft\PhpParser\Node\Expression\ArrayCreationExpression;
 use Microsoft\PhpParser\Node\Expression\ArrowFunctionCreationExpression;
 use Microsoft\PhpParser\Node\Expression\CallExpression;
@@ -66,10 +67,15 @@ class DetectWalker
                 $this->debug('CALL EXPRESSION', $child::class, $child->getText());
                 $this->parseCallExpression($child);
             }
+
+            if ($child instanceof ObjectCreationExpression) {
+                $this->debug('OBJECT CREATION EXPRESSION', $child::class, $child->getText());
+                $this->parseObjectCreationExpression($child);
+            }
         }
 
         // TODO: These results are not unique maybe?
-        return collect($this->items)->unique(fn ($item) => json_encode($item))->values();
+        return collect($this->items)->unique(fn($item) => json_encode($item))->values();
     }
 
     protected function parsePotentialBlade(InlineHtml $node)
@@ -195,6 +201,21 @@ class DetectWalker
         } else {
             // dd($child->callableExpression, 'unknown');
         }
+    }
+
+    protected function parseObjectCreationExpression(ObjectCreationExpression $node)
+    {
+        $item = new DetectedItem;
+
+        $item->classUsed = (string) $node->classTypeDesignator->getResolvedName();
+
+        foreach ($node->argumentExpressionList->getElements() as $child) {
+            foreach ($child->getChildNodes() as $argument) {
+                $item->params[] = $this->parseArgument($argument);
+            }
+        }
+
+        $this->items[] = $item->toArray();
     }
 
     protected function parseQualifiedCallExpression(CallExpression $node)
@@ -400,7 +421,7 @@ class DetectWalker
             return [
                 'type'  => 'string',
                 'value' => $argument->getStringContentsText(),
-                // 'index' => $this->context->paramIndex,
+                'name' =>  $argument->parent instanceof ArgumentExpression ? $argument->parent->name?->getText($this->sourceFile->getFullText()) : null,
                 'start' => [
                     'line'   => $range->start->line,
                     'column' => $range->start->character,

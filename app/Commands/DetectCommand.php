@@ -20,8 +20,6 @@ class DetectCommand extends Command
             $code = file_get_contents(__DIR__ . '/../../tests/snippets/detect/' . $this->option('from-file') . '.php');
         }
 
-        // file_put_contents(__DIR__ . '/code.txt', $this->argument('code'));
-
         $walker = new DetectWalker($code, (bool) $this->option('debug'));
         $result = $walker->walk();
 

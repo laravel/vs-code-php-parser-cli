@@ -10,12 +10,14 @@ use Microsoft\PhpParser\Node\Expression\ArgumentExpression;
 class ArgumentExpressionParser extends AbstractParser
 {
     /**
-     * @var MethodCall
+     * @var Argument
      */
     protected AbstractContext $context;
 
     public function parse(ArgumentExpression $node)
     {
+        $this->context->name = $node->name?->getText($node->getFileContents());
+
         return $this->context;
     }
 

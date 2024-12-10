@@ -31,6 +31,8 @@ class CompileBinaryCommand extends Command
             confirm('Continue?', true);
         }
 
+        exec('mv ' . base_path('.env') . ' ' . base_path('.env.bak'));
+
         $extensions = collect([
             'bcmath',
             'calendar',
@@ -75,5 +77,7 @@ class CompileBinaryCommand extends Command
                 echo $output;
             });
         });
+
+        exec('mv ' . base_path('.env.bak') . ' ' . base_path('.env'));
     }
 }
