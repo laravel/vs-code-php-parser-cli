@@ -41,21 +41,23 @@ class CompileBinaryCommand extends Command
             'dba',
             'dom',
             'exif',
-            'filter',
             'fileinfo',
+            'filter',
             'iconv',
-            'mbstring',
             'mbregex',
+            'mbstring',
             'openssl',
             'pcntl',
-            'pdo',
             'pdo_mysql',
             'pdo_sqlite',
+            'pdo',
             'phar',
             'posix',
             'readline',
+            'session',
             'simplexml',
             'sockets',
+            'sodium',
             'sqlite3',
             'tokenizer',
             'xml',
@@ -63,12 +65,12 @@ class CompileBinaryCommand extends Command
             'xmlwriter',
             'zip',
             'zlib',
-            'sodium',
         ])->implode(',');
 
         $spc = base_path('spc');
 
         collect([
+            base_path('php-parser') . " app:build --build-version={$version}",
             sprintf('%s download --with-php=8.2 --for-extensions="%s"', $spc, $extensions),
             sprintf('%s build --build-micro --build-cli "%s"', $spc, $extensions),
             sprintf('%s micro:combine %s -O %s', $spc, base_path('builds/php-parser'), $destination),
@@ -79,5 +81,17 @@ class CompileBinaryCommand extends Command
         });
 
         exec('mv ' . base_path('.env.bak') . ' ' . base_path('.env'));
+
+        // if [[ $(git status --porcelain) ]]; then
+        //     git add builds/php-parser
+        //     git commit -m "Release $version"
+        //     git push
+        // fi
+
+        // git push
+        // git tag -a $version -m "$version"
+        // git push --tags
+        // echo "\n"
+        // $this->line("https://github.com/laravel/vs-code-php-parser/releases");
     }
 }

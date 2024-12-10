@@ -1,6 +1,7 @@
 <?php
 
 use App\Commands\CompileBinaryCommand;
+use App\Commands\ContextTypeScriptGeneratorCommand;
 
 return [
 
@@ -66,6 +67,7 @@ return [
         Illuminate\Foundation\Console\VendorPublishCommand::class,
         LaravelZero\Framework\Commands\StubPublishCommand::class,
         CompileBinaryCommand::class,
+        ContextTypeScriptGeneratorCommand::class,
     ],
 
     /*
