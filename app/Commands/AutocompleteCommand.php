@@ -30,15 +30,15 @@ class AutocompleteCommand extends Command
             File::ensureDirectoryExists(storage_path($dir));
             $now = now()->format('Y-m-d-H-i-s');
 
-            File::put(storage_path("{$dir}/full-{$now}.json"), $result->toJson(JSON_PRETTY_PRINT));
-            File::put(storage_path("{$dir}/autocomplete-{$now}.json"), json_encode($autocompleting->flip(), JSON_PRETTY_PRINT));
-
             if (!$this->option('from-file')) {
-                File::put(storage_path("{$dir}/autocomplete-{$now}.php"), $code);
+                File::put(storage_path("{$dir}/{$now}-01-code.php"), $code);
             }
+
+            File::put(storage_path("{$dir}/{$now}-02-autocomplete.json"), json_encode($autocompleting?->flip() ?? [], JSON_PRETTY_PRINT));
+            File::put(storage_path("{$dir}/{$now}-03-full.json"), $result->toJson(JSON_PRETTY_PRINT));
         }
 
-        echo json_encode($autocompleting->flip(), $this->option('debug') ? JSON_PRETTY_PRINT : 0);
+        echo json_encode($autocompleting?->flip() ?? [], $this->option('debug') ? JSON_PRETTY_PRINT : 0);
 
         // dd($autocompleting->flip(), 'Autocompleting');
         // // $toAutocomplete = $this->findFirstAutocompleting($result->toArray()['children']);
