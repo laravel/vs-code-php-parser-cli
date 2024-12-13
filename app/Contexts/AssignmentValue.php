@@ -20,7 +20,7 @@ class AssignmentValue extends AbstractContext
 
         if ($child) {
             return [
-                'name' => $child->name(),
+                'name' => $child->name ?? $child->className ?? null,
                 'type' => $child->type(),
             ];
         }
