@@ -2,7 +2,9 @@
 
 namespace App\Parser;
 
+use App\Contexts\AbstractContext;
 use App\Support\Debugs;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Str;
 use Microsoft\PhpParser\MissingToken;
 use Microsoft\PhpParser\Node;
@@ -53,8 +55,32 @@ class DetectWalker
         $this->context = new DetectContext;
     }
 
+    protected function handleContext(Node $node, AbstractContext $context)
+    {
+        $nodesToDetect = [
+            CallExpression::class,
+            ObjectCreationExpression::class,
+        ];
+
+        foreach ($nodesToDetect as $nodeClass) {
+            if ($node instanceof $nodeClass) {
+                $this->items[] = $context;
+            }
+        }
+    }
+
     public function walk(?Node $node = null)
     {
+        SourceFile::$sourceFile = $this->sourceFile;
+        Settings::$capturePosition = true;
+
+        Parse::parse(
+            node: $this->sourceFile,
+            callback: $this->handleContext(...),
+        );
+
+        return collect($this->items)->map(fn ($item) => Arr::except($item->toArray(), 'children'));
+
         $node = $this->nextNodeToWalk ?? $node ?? $this->sourceFile;
         $this->nextNodeToWalk = null;
 
@@ -85,11 +111,11 @@ class DetectWalker
                 $this->parseBladeDirective($node);
             }
 
-            // if ($node instanceof EchoNode) {
-            //     $walker = new static('<?php ' . $node->innerContent);
-            //     TODO: Parse this and re-calc the offsets
-            //     var_dump($walker->walk());
-            // }
+            if ($node instanceof EchoNode) {
+                $walker = new static('<?php ' . $node->innerContent);
+                // TODO: Parse this and re-calc the offsets
+                dd($node, $walker->walk());
+            }
 
             $this->debug('potential blade node', $node::class);
         }

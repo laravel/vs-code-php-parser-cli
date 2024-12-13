@@ -10,7 +10,7 @@ class Parse
 {
     public static $debug = false;
 
-    public static function parse(Node $node, $depth = 0, ?AbstractContext $currentContext = null)
+    public static function parse(Node $node, $depth = 0, ?AbstractContext $currentContext = null, ?callable $callback = null)
     {
         if ($currentContext === null) {
             self::debugBreak();
@@ -44,10 +44,14 @@ class Parse
             self::debugBreak();
 
             $context = $parser->parseNode($node);
+
+            if ($callback) {
+                $callback($node, $context);
+            }
         }
 
         foreach ($node->getChildNodes() as $child) {
-            self::parse($child, $depth + 1, $context);
+            self::parse($child, $depth + 1, $context, $callback);
         }
 
         return $context;

@@ -3,6 +3,7 @@
 namespace App\Contexts;
 
 use Illuminate\Support\Arr;
+use Microsoft\PhpParser\Range;
 
 abstract class AbstractContext
 {
@@ -15,6 +16,10 @@ abstract class AbstractContext
     protected bool $hasChildren = true;
 
     protected ?AbstractContext $parent = null;
+
+    public array $start = [];
+
+    public array $end = [];
 
     abstract public function type(): string;
 
@@ -138,6 +143,8 @@ abstract class AbstractContext
             $this->autocompleting ? ['autocompleting' => true] : [],
             $this->castToArray(),
             ($this->label !== '') ? ['label' => $this->label] : [],
+            (count($this->start) > 0) ? ['start' => $this->start] : [],
+            (count($this->end) > 0) ? ['end' => $this->end] : [],
             ($this->hasChildren)
                 ? ['children' => array_map(fn ($child) => $child->toArray(), $this->children)]
                 : [],
@@ -147,5 +154,18 @@ abstract class AbstractContext
     public function toJson($flags = 0)
     {
         return json_encode($this->toArray(), $flags);
+    }
+
+    public function setPosition(Range $range)
+    {
+        $this->start = [
+            'line'   => $range->start->line,
+            'column' => $range->start->character,
+        ];
+
+        $this->end = [
+            'line'   => $range->end->line,
+            'column' => $range->end->character,
+        ];
     }
 }
