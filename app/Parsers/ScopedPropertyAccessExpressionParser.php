@@ -5,7 +5,6 @@ namespace App\Parsers;
 use App\Contexts\AbstractContext;
 use App\Contexts\Argument;
 use App\Contexts\MethodCall;
-use App\Parser\SourceFile;
 use Microsoft\PhpParser\Node\Expression\ScopedPropertyAccessExpression;
 
 class ScopedPropertyAccessExpressionParser extends AbstractParser
@@ -17,7 +16,7 @@ class ScopedPropertyAccessExpressionParser extends AbstractParser
 
     public function parse(ScopedPropertyAccessExpression $node)
     {
-        $this->context->methodName = $node->memberName->getFullText(SourceFile::fullText());
+        $this->context->methodName = $node->memberName->getFullText($node->getRoot()->getFullText());
         $this->context->className = (string) $node->scopeResolutionQualifier->getResolvedName();
 
         return $this->context;

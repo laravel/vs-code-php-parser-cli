@@ -46,8 +46,8 @@ class Walker
             return new Base;
         }
 
-        SourceFile::$sourceFile = $this->sourceFile;
         Parse::$debug = $this->debug;
+
         $parsed = Parse::parse($this->sourceFile);
 
         return $parsed;

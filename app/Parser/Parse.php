@@ -4,6 +4,7 @@ namespace App\Parser;
 
 use App\Contexts\AbstractContext;
 use App\Contexts\Base;
+use App\Contexts\Blade;
 use Microsoft\PhpParser\Node;
 
 class Parse

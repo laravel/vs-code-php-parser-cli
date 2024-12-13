@@ -120,7 +120,7 @@ abstract class AbstractContext
     public function searchForProperty(string $name)
     {
         if ($this instanceof ClassDefinition) {
-            return collect($this->properties)->first(fn ($prop) => $prop['name'] === $name);
+            return collect($this->properties)->first(fn($prop) => $prop['name'] === $name);
         }
 
         return $this->parent?->searchForProperty($name) ?? null;
@@ -146,7 +146,7 @@ abstract class AbstractContext
             (count($this->start) > 0) ? ['start' => $this->start] : [],
             (count($this->end) > 0) ? ['end' => $this->end] : [],
             ($this->hasChildren)
-                ? ['children' => array_map(fn ($child) => $child->toArray(), $this->children)]
+                ? ['children' => array_map(fn($child) => $child->toArray(), $this->children)]
                 : [],
         );
     }

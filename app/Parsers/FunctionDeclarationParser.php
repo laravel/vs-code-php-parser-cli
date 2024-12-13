@@ -2,7 +2,6 @@
 
 namespace App\Parsers;
 
-use App\Parser\SourceFile;
 use Microsoft\PhpParser\Node\QualifiedName;
 use Microsoft\PhpParser\Node\Statement\FunctionDeclaration;
 use Microsoft\PhpParser\Token;
@@ -14,7 +13,7 @@ class FunctionDeclarationParser extends AbstractParser
     public function parse(FunctionDeclaration $node)
     {
         $this->context->methodDefinition = array_map(
-            fn (Token $part) => $part->getText(SourceFile::fullText()),
+            fn (Token $part) => $part->getText($node->getRoot()->getFullText()),
             $node->getNameParts(),
         );
 
@@ -28,7 +27,7 @@ class FunctionDeclarationParser extends AbstractParser
                 if ($element->typeDeclarationList) {
                     foreach ($element->typeDeclarationList->getValues() as $type) {
                         if ($type instanceof Token) {
-                            $param['types'][] = $type->getText(SourceFile::fullText());
+                            $param['types'][] = $type->getText($node->getRoot()->getFullText());
                         } elseif ($type instanceof QualifiedName) {
                             $param['types'][] = (string) $type->getResolvedName();
                         } else {

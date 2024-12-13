@@ -4,7 +4,6 @@ namespace App\Parsers;
 
 use App\Contexts\AbstractContext;
 use App\Contexts\ClassDefinition;
-use App\Parser\SourceFile;
 use Microsoft\PhpParser\Node\Expression\Variable;
 use Microsoft\PhpParser\Node\PropertyDeclaration;
 use Microsoft\PhpParser\Node\QualifiedName;
@@ -36,7 +35,7 @@ class PropertyDeclarationParser extends AbstractParser
         if ($node->typeDeclarationList) {
             foreach ($node->typeDeclarationList->getValues() as $type) {
                 if ($type instanceof Token) {
-                    $property['types'][] = $type->getText(SourceFile::fullText());
+                    $property['types'][] = $type->getText($node->getRoot()->getFullText());
                 } elseif ($type instanceof QualifiedName) {
                     $property['types'][] = (string) $type->getResolvedName();
                 }

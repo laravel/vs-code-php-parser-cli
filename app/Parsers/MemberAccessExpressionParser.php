@@ -5,7 +5,6 @@ namespace App\Parsers;
 use App\Contexts\AbstractContext;
 use App\Contexts\AssignmentValue;
 use App\Contexts\MethodCall;
-use App\Parser\SourceFile;
 use Microsoft\PhpParser\Node\Expression\MemberAccessExpression;
 use Microsoft\PhpParser\Node\Expression\Variable;
 use Microsoft\PhpParser\Node\QualifiedName;
@@ -19,7 +18,7 @@ class MemberAccessExpressionParser extends AbstractParser
 
     public function parse(MemberAccessExpression $node)
     {
-        $this->context->methodName = $node->memberName->getFullText(SourceFile::fullText());
+        $this->context->methodName = $node->memberName->getFullText($node->getRoot()->getFullText());
 
         foreach ($node->getDescendantNodes() as $child) {
             if ($child instanceof QualifiedName) {
@@ -30,7 +29,7 @@ class MemberAccessExpressionParser extends AbstractParser
 
             if ($child instanceof Variable) {
                 if ($child->getName() === 'this') {
-                    $propName = $child->getParent()->memberName->getFullText(SourceFile::fullText());
+                    $propName = $child->getParent()->memberName->getFullText($node->getRoot()->getFullText());
 
                     $result = $this->context->searchForProperty($propName);
 
