@@ -57,6 +57,8 @@ class DetectWalker
         foreach ($nodesToDetect as $nodeClass) {
             if ($node instanceof $nodeClass) {
                 $this->items[] = $context;
+
+                $context->parent->children = array_filter($context->parent->children, fn($child) => $child !== $context);
             }
         }
 
