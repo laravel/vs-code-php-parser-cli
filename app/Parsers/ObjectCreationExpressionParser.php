@@ -6,6 +6,7 @@ use App\Contexts\AbstractContext;
 use App\Contexts\ObjectValue;
 use Microsoft\PhpParser\MissingToken;
 use Microsoft\PhpParser\Node\Expression\ObjectCreationExpression;
+use Microsoft\PhpParser\Node\QualifiedName;
 
 class ObjectCreationExpressionParser extends AbstractParser
 {
@@ -16,7 +17,10 @@ class ObjectCreationExpressionParser extends AbstractParser
 
     public function parse(ObjectCreationExpression $node)
     {
-        $this->context->className = (string) $node->classTypeDesignator->getResolvedName();
+        if ($node->classTypeDesignator instanceof QualifiedName) {
+            $this->context->className = (string) $node->classTypeDesignator->getResolvedName();
+        }
+
         $this->context->autocompleting = $node->closeParen instanceof MissingToken;
 
         return $this->context->arguments;
