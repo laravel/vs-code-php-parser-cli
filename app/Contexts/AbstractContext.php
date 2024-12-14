@@ -15,7 +15,7 @@ abstract class AbstractContext
 
     protected bool $hasChildren = true;
 
-    protected ?AbstractContext $parent = null;
+    public ?AbstractContext $parent = null;
 
     public array $start = [];
 
