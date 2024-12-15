@@ -39,6 +39,8 @@ class DetectWalker
     {
         Settings::$capturePosition = true;
 
+        Parse::$debug = $this->debug;
+
         Parse::parse(
             node: $this->sourceFile,
             callback: $this->handleContext(...),
