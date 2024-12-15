@@ -23,6 +23,10 @@ class ObjectCreationExpressionParser extends AbstractParser
 
         $this->context->autocompleting = $node->closeParen instanceof MissingToken;
 
+        if ($node->argumentExpressionList === null) {
+            return $this->context;
+        }
+
         return $this->context->arguments;
     }
 
