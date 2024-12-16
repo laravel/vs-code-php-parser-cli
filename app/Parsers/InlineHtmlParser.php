@@ -3,16 +3,13 @@
 namespace App\Parsers;
 
 use App\Contexts\AbstractContext;
-use App\Contexts\Argument;
 use App\Contexts\Blade;
 use App\Parser\Parse;
 use App\Parser\Settings;
-use Illuminate\Support\Str;
 use Microsoft\PhpParser\Node\Statement\InlineHtml;
 use Microsoft\PhpParser\Parser;
 use Microsoft\PhpParser\Range;
 use Stillat\BladeParser\Document\Document;
-use Stillat\BladeParser\Nodes\Components\ComponentNode;
 use Stillat\BladeParser\Nodes\DirectiveNode;
 use Stillat\BladeParser\Nodes\EchoNode;
 use Stillat\BladeParser\Nodes\EchoType;
@@ -98,15 +95,15 @@ class InlineHtmlParser extends AbstractParser
 
         Settings::$calculatePosition = function (Range $range) use ($node) {
             $prefix = match ($node->type) {
-                EchoType::RawEcho => '{!!',
+                EchoType::RawEcho    => '{!!',
                 EchoType::TripleEcho => '{{{',
-                default => '{{',
+                default              => '{{',
             };
 
             $suffix = match ($node->type) {
-                EchoType::RawEcho => '!!}',
+                EchoType::RawEcho    => '!!}',
                 EchoType::TripleEcho => '}}}',
-                default => '}}',
+                default              => '}}',
             };
 
             if ($range->start->line === 1) {

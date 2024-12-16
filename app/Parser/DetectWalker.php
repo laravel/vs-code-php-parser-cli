@@ -46,7 +46,7 @@ class DetectWalker
             callback: $this->handleContext(...),
         );
 
-        return collect($this->items)->map(fn($item) => Arr::except($item->toArray(), 'children'));
+        return collect($this->items)->map(fn ($item) => Arr::except($item->toArray(), 'children'));
     }
 
     protected function handleContext(Node $node, AbstractContext $context)
@@ -60,7 +60,7 @@ class DetectWalker
             if ($node instanceof $nodeClass) {
                 $this->items[] = $context;
 
-                $context->parent->children = array_filter($context->parent->children, fn($child) => $child !== $context);
+                $context->parent->children = array_filter($context->parent->children, fn ($child) => $child !== $context);
             }
         }
 
