@@ -22,6 +22,18 @@ class CompileBinaryCommand extends Command
         info("Compiling binary for version {$version}");
         $osType = strtolower(php_uname('s'));
         $architecture = php_uname('m');
+        if ($osType === 'darwin') {
+            $osType = 'mac';
+        } elseif ($osType === 'Linux') {
+            $osType = 'linux';
+        } elseif ($osType === 'Windows NT') {
+            $osType = 'windows';
+        }
+        if ($architecture === 'x86_64') {
+            $architecture = 'x64';
+        } elseif ($architecture === 'aarch64') {
+            $architecture = 'arm64';
+        }
         $destination = base_path('bin/php-parser-' .$osType. '-' . $architecture . '-' . $version);
 
         if (File::exists($destination)) {
