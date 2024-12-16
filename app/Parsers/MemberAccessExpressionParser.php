@@ -22,7 +22,7 @@ class MemberAccessExpressionParser extends AbstractParser
 
         foreach ($node->getDescendantNodes() as $child) {
             if ($child instanceof QualifiedName) {
-                $this->context->className ??= (string) $child->getResolvedName();
+                $this->context->className ??= (string) ($child->getResolvedName() ?? $child->getText());
 
                 return $this->context;
             }
