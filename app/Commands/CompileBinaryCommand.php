@@ -33,6 +33,10 @@ class CompileBinaryCommand extends Command
 
         exec('mv ' . base_path('.env') . ' ' . base_path('.env.bak'));
 
+        file_put_contents(base_path('.env'), '');
+
+        exec('composer install --no-dev');
+
         $extensions = collect([
             'bcmath',
             'calendar',
@@ -81,6 +85,9 @@ class CompileBinaryCommand extends Command
         });
 
         exec('mv ' . base_path('.env.bak') . ' ' . base_path('.env'));
+        exec('composer install');
+
+        info("Binary compiled successfully at {$destination}");
 
         // if [[ $(git status --porcelain) ]]; then
         //     git add builds/php-parser
