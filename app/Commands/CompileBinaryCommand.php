@@ -20,7 +20,7 @@ class CompileBinaryCommand extends Command
         $version = File::json(base_path('composer.json'))['version'];
 
         info("Compiling binary for version {$version}");
-        $osType = php_uname('s');
+        $osType = strtolower(php_uname('s'));
         $architecture = php_uname('m');
         $destination = base_path('bin/php-parser-' .$osType. '-' . $architecture . '-' . $version);
 
