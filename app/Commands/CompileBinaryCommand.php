@@ -20,20 +20,21 @@ class CompileBinaryCommand extends Command
         $version = File::json(base_path('composer.json'))['version'];
 
         info("Compiling binary for version {$version}");
-        $osType = strtolower(php_uname('s'));
-        $architecture = php_uname('m');
-        if ($osType === 'darwin') {
-            $osType = 'mac';
-        } elseif ($osType === 'Linux') {
-            $osType = 'linux';
-        } elseif ($osType === 'Windows NT') {
-            $osType = 'windows';
-        }
-        if ($architecture === 'x86_64') {
-            $architecture = 'x64';
-        } elseif ($architecture === 'aarch64') {
-            $architecture = 'arm64';
-        }
+        $osType = match (strtolower(php_uname('s'))) {
+            'darwin' => 'darwin',
+            'linux' => 'linux',
+            'windows nt' => 'win32',
+            default => strtolower(php_uname('s')),
+        };
+
+        $architecture = match (php_uname('m')) {
+            'x86_64', 'amd64' => 'x64',
+            'aarch64' => 'arm64',
+            'armv7l', 'armv6l' => 'arm',
+            'i386', 'i686' => 'ia32',
+            default => php_uname('m'),
+        };
+
         $destination = base_path('bin/php-parser-' .$osType. '-' . $architecture . '-' . $version);
 
         if (File::exists($destination)) {
