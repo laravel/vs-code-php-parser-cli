@@ -16,9 +16,9 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          #   - os: ubuntu-latest
-          #     arch: x64-linux
-          #     spc_suffix: linux-x86_64.tar.gz
+          - os: ubuntu-latest
+            arch: x64-linux
+            spc_suffix: linux-x86_64.tar.gz
           - os: macos-latest
             arch: x64-darwin
             spc_suffix: macos-x86_64.tar.gz
@@ -60,15 +60,13 @@ jobs:
 
       - name: Download PHP
         run: |
-          ./spc download --with-php=8.2 --prefer-pre-built --for-extensions="bcmath,calendar,ctype,curl,dba,dom,exif,fileinfo,filter,iconv,mbregex,mbstring,openssl,pcntl,pdo_mysql,pdo_sqlite,pdo,phar,posix,readline,session,simplexml,sockets,sodium,sqlite3,tokenizer,xml,xmlreader,xmlwriter,zip,zlib"
-
-      #   - name: SPC Doctor
-      #     run: |
-      #       ./spc doctor --auto-fix
+          curl -O -L "https://dl.static-php.dev/static-php-cli/common/php-8.3.9-micro-${{ matrix.spc_suffix }}.tar.gz"
+          tar xzf "php-8.3.9-micro-${{ matrix.spc_suffix }}.tar.gz"
+          mkdir -p buildroot/bin
+          mv micro.sfx buildroot/bin
 
       - name: SPC Build and Combine
         run: |
-          ./spc build --build-micro "bcmath,calendar,ctype,curl,dba,dom,exif,fileinfo,filter,iconv,mbregex,mbstring,openssl,pcntl,pdo_mysql,pdo_sqlite,pdo,phar,posix,readline,session,simplexml,sockets,sodium,sqlite3,tokenizer,xml,xmlreader,xmlwriter,zip,zlib"
           ./spc micro:combine builds/php-parser -O bin/php-parser-${{ env.VERSION }}-${{ matrix.arch }}
           ls -l bin/
 
