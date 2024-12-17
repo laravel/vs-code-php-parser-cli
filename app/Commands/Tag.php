@@ -39,8 +39,8 @@ class Tag extends Command
 
         File::put(base_path('composer.json'), json_encode($composer, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES) . PHP_EOL);
 
-        exec('git add composer.json');
-        exec('git commit -m "Bump version to ' . $newVersion . '"');
-        exec('git tag ' . $tag);
+        // exec('git add composer.json');
+        // exec('git commit -m "Bump version to ' . $newVersion . '"');
+        // exec('git tag ' . $tag);
     }
 }
