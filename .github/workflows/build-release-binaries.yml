@@ -44,18 +44,32 @@ jobs:
 
       - name: Install dependencies
         run: |
-          composer install --prefer-dist --no-progress --no-dev
+          composer install --prefer-dist --no-progress --no-dev --quiet
 
       - name: Install SPC
         run: |
-          wget "https://github.com/crazywhalecc/static-php-cli/releases/latest/download/spc-${{ matrix.spc_suffix }}"
+          curl -O -L "https://github.com/crazywhalecc/static-php-cli/releases/latest/download/spc-${{ matrix.spc_suffix }}"
           tar xzf "spc-${{ matrix.spc_suffix }}"
           chmod +x ./spc
           ./spc --version
 
-      - name: Build binary
+      - name: Build Binary
         run: |
-          php php-parser compile-binary --arch=${{ matrix.arch }}
+          echo "" > .env
+          php php-parser app:build --build-version=${{ env.VERSION }}
+
+      - name: Download PHP
+        run: |
+          ./spc download --with-php=8.2 --prefer-pre-built --for-extensions="bcmath,calendar,ctype,curl,dba,dom,exif,fileinfo,filter,iconv,mbregex,mbstring,openssl,pcntl,pdo_mysql,pdo_sqlite,pdo,phar,posix,readline,session,simplexml,sockets,sodium,sqlite3,tokenizer,xml,xmlreader,xmlwriter,zip,zlib"
+
+      #   - name: SPC Doctor
+      #     run: |
+      #       ./spc doctor --auto-fix
+
+      - name: SPC Build and Combine
+        run: |
+          ./spc build --build-micro "bcmath,calendar,ctype,curl,dba,dom,exif,fileinfo,filter,iconv,mbregex,mbstring,openssl,pcntl,pdo_mysql,pdo_sqlite,pdo,phar,posix,readline,session,simplexml,sockets,sodium,sqlite3,tokenizer,xml,xmlreader,xmlwriter,zip,zlib"
+          ./spc micro:combine builds/php-parser -O bin/php-parser-${{ env.VERSION }}-${{ matrix.arch }}
           ls -l bin/
 
       - name: Upload binary as artifact
