@@ -16,7 +16,9 @@ class CompileBinaryCommand extends Command
 
     public function handle(): void
     {
-        set_time_limit(300);
+        $timeout = 60 * 10;
+
+        set_time_limit($timeout);
 
         $version = File::json(base_path('composer.json'))['version'];
 
@@ -25,6 +27,8 @@ class CompileBinaryCommand extends Command
         $destination = base_path(
             sprintf('bin/php-parser-v%s-%s', $version, $this->option('arch'))
         );
+
+        info("Destination: {$destination}");
 
         if (file_exists(base_path('.env'))) {
             exec('mv ' . base_path('.env') . ' ' . base_path('.env.bak'));
@@ -75,8 +79,8 @@ class CompileBinaryCommand extends Command
             sprintf('%s download --with-php=8.2 --for-extensions="%s"', $spc, $extensions),
             sprintf('%s build --build-micro --build-cli "%s"', $spc, $extensions),
             sprintf('%s micro:combine %s -O %s', $spc, base_path('builds/php-parser'), $destination),
-        ])->each(function (string $command) {
-            Process::timeout(300)->run($command, function (string $type, string $output) {
+        ])->each(function (string $command) use ($timeout) {
+            Process::timeout($timeout)->run($command, function (string $type, string $output) {
                 echo $output;
             });
         });
