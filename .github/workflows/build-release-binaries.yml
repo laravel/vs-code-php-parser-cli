@@ -16,9 +16,9 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - os: ubuntu-latest
-            arch: x64-linux
-            spc_suffix: linux-x86_64.tar.gz
+          #   - os: ubuntu-latest
+          #     arch: x64-linux
+          #     spc_suffix: linux-x86_64.tar.gz
           - os: macos-latest
             arch: x64-darwin
             spc_suffix: macos-x86_64.tar.gz
@@ -36,7 +36,7 @@ jobs:
         uses: shivammathur/setup-php@v2
         with:
           php-version: "8.2"
-          extensions: bcmath,calendar,ctype,curl,dba,dom,exif,fileinfo,filter,iconv,mbregex,mbstring,openssl,pcntl,pdo_mysql,pdo_sqlite,pdo,phar,posix,readline,session,simplexml,sockets,sodium,sqlite3,tokenizer,xml,xmlreader,xmlwriter,zip,zlib
+          extensions: bcmath,calendar,ctype,curl,dba,dom,exif,fileinfo,filter,iconv,mbstring,openssl,pcntl,pdo_mysql,pdo_sqlite,pdo,phar,posix,readline,session,simplexml,sockets,sodium,sqlite3,tokenizer,xml,xmlreader,xmlwriter,zip,zlib
 
       - name: Get the version
         id: get_version
