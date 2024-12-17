@@ -5,6 +5,9 @@ on:
     tags:
       - "*"
 
+permissions:
+  contents: write
+
 jobs:
   build:
     name: Build Binary (${{ matrix.os }})
@@ -45,7 +48,6 @@ jobs:
 
       - name: Install SPC
         run: |
-          mkdir -p bin
           wget "https://github.com/crazywhalecc/static-php-cli/releases/latest/download/spc-${{ matrix.spc_suffix }}"
           tar xzf "spc-${{ matrix.spc_suffix }}"
           chmod +x ./spc
