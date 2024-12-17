@@ -26,7 +26,9 @@ class CompileBinaryCommand extends Command
 
         info("Compiling binary for version {$version}");
 
-        $destination = sprintf('%s/bin/php-parser-v%s-%s', getcwd(), $version, $this->option('arch'));
+        $destination = base_path(
+            sprintf('bin/php-parser-v%s-%s', $version, $this->option('arch'))
+        );
 
         info("Destination: {$destination}");
 
