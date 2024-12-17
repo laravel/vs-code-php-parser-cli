@@ -1,0 +1,71 @@
+name: Build Release Binaries
+
+on:
+  push:
+    tags:
+      - "*"
+
+jobs:
+  build:
+    name: Build Binary (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: ubuntu-latest
+            arch: x64-linux
+            spc_suffix: linux-x86_64.tar.gz
+          - os: macos-latest
+            arch: x64-darwin
+            spc_suffix: macos-x86_64.tar.gz
+          - os: macos-14
+            arch: arm64-darwin
+            spc_suffix: macos-aarch64.tar.gz
+          - os: windows-latest
+            arch: x64-win32
+            spc_suffix: windows-x86_64.zip
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: "8.2"
+          extensions: bcmath,calendar,ctype,curl,dba,dom,exif,fileinfo,filter,iconv,mbregex,mbstring,openssl,pcntl,pdo_mysql,pdo_sqlite,pdo,phar,posix,readline,session,simplexml,sockets,sodium,sqlite3,tokenizer,xml,xmlreader,xmlwriter,zip,zlib
+
+      - name: Get the version
+        id: get_version
+        run: echo "VERSION=${GITHUB_REF#refs/tags/}" >> $GITHUB_ENV
+
+      - name: Install dependencies
+        run: |
+          composer install --prefer-dist --no-progress --no-dev
+
+      - name: Install SPC
+        run: |
+          mkdir -p bin
+          wget "https://github.com/crazywhalecc/static-php-cli/releases/latest/download/spc-${{ matrix.spc_suffix }}"
+          tar xzf "spc-${{ matrix.spc_suffix }}"
+          chmod +x ./spc
+          ./spc --version
+
+      - name: Build binary
+        run: |
+          php php-parser compile-binary --arch=${{ matrix.arch }}
+
+      - name: Upload binary as artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: php-parser-${{ env.VERSION }}-${{ matrix.arch }}
+          path: bin/php-parser-${{ env.VERSION }}-${{ matrix.arch }}
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v1
+        if: startsWith(github.ref, 'refs/tags/')
+        with:
+          files: |
+            bin/php-parser-${{ env.VERSION }}-${{ matrix.arch }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

@@ -6,32 +6,29 @@ use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Process;
 use LaravelZero\Framework\Commands\Command;
 
-use function Laravel\Prompts\confirm;
 use function Laravel\Prompts\info;
 
 class CompileBinaryCommand extends Command
 {
-    protected $signature = 'compile-binary';
+    protected $signature = 'compile-binary {--arch=}';
 
     protected $description = 'Compile the binary for the current version';
 
     public function handle(): void
     {
+        set_time_limit(300);
+
         $version = File::json(base_path('composer.json'))['version'];
 
         info("Compiling binary for version {$version}");
 
-        $destination = base_path('bin/php-parser-' . $version);
+        $destination = base_path(
+            sprintf('bin/php-parser-%s-%s', $version, $this->option('arch'))
+        );
 
-        if (File::exists($destination)) {
-            if (!confirm('The binary already exists. Do you want to overwrite it?', false)) {
-                return;
-            }
-        } else {
-            confirm('Continue?', true);
+        if (file_exists(base_path('.env'))) {
+            exec('mv ' . base_path('.env') . ' ' . base_path('.env.bak'));
         }
-
-        exec('mv ' . base_path('.env') . ' ' . base_path('.env.bak'));
 
         file_put_contents(base_path('.env'), '');
 
@@ -79,26 +76,15 @@ class CompileBinaryCommand extends Command
             sprintf('%s build --build-micro --build-cli "%s"', $spc, $extensions),
             sprintf('%s micro:combine %s -O %s', $spc, base_path('builds/php-parser'), $destination),
         ])->each(function (string $command) {
-            Process::run($command, function (string $type, string $output) {
+            Process::timeout(300)->run($command, function (string $type, string $output) {
                 echo $output;
             });
         });
 
-        exec('mv ' . base_path('.env.bak') . ' ' . base_path('.env'));
-        exec('composer install');
+        if (file_exists(base_path('.env.bak'))) {
+            exec('mv ' . base_path('.env.bak') . ' ' . base_path('.env'));
+        }
 
         info("Binary compiled successfully at {$destination}");
-
-        // if [[ $(git status --porcelain) ]]; then
-        //     git add builds/php-parser
-        //     git commit -m "Release $version"
-        //     git push
-        // fi
-
-        // git push
-        // git tag -a $version -m "$version"
-        // git push --tags
-        // echo "\n"
-        // $this->line("https://github.com/laravel/vs-code-php-parser/releases");
     }
 }
