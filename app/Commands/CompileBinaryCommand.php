@@ -78,14 +78,19 @@ class CompileBinaryCommand extends Command
 
         collect([
             base_path('php-parser') . " app:build --build-version={$version}",
-            sprintf('%s download --with-php=8.2 --for-extensions="%s"', $spc, $extensions),
-            sprintf('%s build --build-micro --build-cli "%s"', $spc, $extensions),
+            sprintf('%s download --with-php=8.2 --for-extensions="%s" --prefer-pre-built', $spc, $extensions),
+            sprintf('%s doctor --auto-fix', $spc),
+            sprintf('%s build --build-micro "%s"', $spc, $extensions),
             sprintf('%s micro:combine %s -O %s', $spc, base_path('builds/php-parser'), $destination),
         ])->each(function (string $command) use ($timeout) {
             Process::timeout($timeout)->run($command, function (string $type, string $output) {
                 echo $output;
             });
         });
+
+        if (!file_exists($destination)) {
+            throw new \Exception('Error during compilation');
+        }
 
         if (file_exists(base_path('.env.bak'))) {
             exec('mv ' . base_path('.env.bak') . ' ' . base_path('.env'));
