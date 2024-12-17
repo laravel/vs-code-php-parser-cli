@@ -23,7 +23,7 @@ class CompileBinaryCommand extends Command
         info("Compiling binary for version {$version}");
 
         $destination = base_path(
-            sprintf('bin/php-parser-%s-%s', $version, $this->option('arch'))
+            sprintf('bin/php-parser-v%s-%s', $version, $this->option('arch'))
         );
 
         if (file_exists(base_path('.env'))) {
