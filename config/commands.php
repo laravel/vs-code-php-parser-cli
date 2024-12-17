@@ -2,6 +2,7 @@
 
 use App\Commands\CompileBinaryCommand;
 use App\Commands\ContextTypeScriptGeneratorCommand;
+use App\Commands\Tag;
 
 return [
 
@@ -68,6 +69,7 @@ return [
         LaravelZero\Framework\Commands\StubPublishCommand::class,
         CompileBinaryCommand::class,
         ContextTypeScriptGeneratorCommand::class,
+        Tag::class,
     ],
 
     /*
