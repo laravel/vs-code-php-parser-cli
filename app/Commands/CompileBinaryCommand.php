@@ -20,13 +20,13 @@ class CompileBinaryCommand extends Command
 
         set_time_limit($timeout);
 
+        info('Current working directory: ' . getcwd());
+
         $version = File::json(base_path('composer.json'))['version'];
 
         info("Compiling binary for version {$version}");
 
-        $destination = base_path(
-            sprintf('bin/php-parser-v%s-%s', $version, $this->option('arch'))
-        );
+        $destination = sprintf('%s/bin/php-parser-v%s-%s', getcwd(), $version, $this->option('arch'));
 
         info("Destination: {$destination}");
 
