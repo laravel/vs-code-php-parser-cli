@@ -25,9 +25,9 @@ jobs:
           - os: macos-14
             arch: arm64-darwin
             spc_suffix: macos-aarch64.tar.gz
-          - os: windows-latest
-            arch: x64-win32
-            spc_suffix: windows-x86_64.zip
+        #   - os: windows-latest
+        #     arch: x64-win32
+        #     spc_suffix: windows-x86_64.zip
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
