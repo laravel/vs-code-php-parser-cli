@@ -19,15 +19,23 @@ jobs:
           - os: ubuntu-latest
             arch: x64-linux
             spc_suffix: linux-x86_64.tar.gz
+            compressed_file: php-8.3.9-micro-linux-x86_64.tar.gz
+            micro_suffix: common/php-8.3.9-micro-linux-x86_64.tar.gz
           - os: macos-latest
             arch: x64-darwin
             spc_suffix: macos-x86_64.tar.gz
+            compressed_file: php-8.3.9-micro-macos-x86_64.tar.gz
+            micro_suffix: common/php-8.3.9-micro-macos-x86_64.tar.gz
           - os: macos-14
             arch: arm64-darwin
             spc_suffix: macos-aarch64.tar.gz
-        #   - os: windows-latest
-        #     arch: x64-win32
-        #     spc_suffix: windows-x86_64.zip
+            compressed_file: php-8.3.9-micro-macos-aarch64.tar.gz
+            micro_suffix: common/php-8.3.9-micro-macos-aarch64.tar.gz
+          - os: windows-latest
+            arch: x64-win32
+            spc_suffix: windows-x86_64.zip
+            compressed_file: php-8.3.9-micro-win.zip
+            micro_suffix: windows/spc-max/php-8.3.9-micro-win.zip
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -60,15 +68,29 @@ jobs:
 
       - name: Download PHP
         run: |
-          curl -O -L "https://dl.static-php.dev/static-php-cli/common/php-8.3.9-micro-${{ matrix.spc_suffix }}"
-          tar xzf "php-8.3.9-micro-${{ matrix.spc_suffix }}"
+          curl -O -L "https://dl.static-php.dev/static-php-cli/${{ matrix.micro_suffix }}"
+          tar xzf "${{ matrix.compressed_file }}"
           mkdir -p buildroot/bin
           mv micro.sfx buildroot/bin
 
-      - name: SPC Build and Combine
+      - name: Extract Archive (Zip)
+        run: |
+          unzip "${{ matrix.compressed_file }}"
+        if: endsWith(matrix.compressed_file, 'zip')
+
+      - name: Extract Archive (Tar)
+        run: |
+          tar xzf "${{ matrix.compressed_file }}"
+        if: ${{ !endsWith(matrix.compressed_file, 'zip') }}
+
+      - name: Move Binary
+        run: |
+          mkdir -p buildroot/bin
+          mv micro.sfx buildroot/bin
+
+      - name: SPC Combine
         run: |
           ./spc micro:combine builds/php-parser -O bin/php-parser-${{ env.VERSION }}-${{ matrix.arch }}
-          ls -l bin/
 
       - name: Upload binary as artifact
         uses: actions/upload-artifact@v4
