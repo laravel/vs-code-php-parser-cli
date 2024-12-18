@@ -88,14 +88,20 @@ jobs:
           if (-not (test-path buildroot/bin)) { mkdir -p buildroot/bin }
         if: contains(matrix.os, 'windows')
 
-      - name: Make Binary Directory (Windows)
+      - name: Make Binary Directory (Linux/Mac)
         run: |
           mkdir -p buildroot/bin
         if: ${{ !contains(matrix.os, 'windows') }}
 
-      - name: Move Binary
+      - name: Move Binary (Windows)
+        run: |
+          if (-not (test-path buildroot/bin/micro.sfx)) { mv micro.sfx buildroot/bin }
+        if: contains(matrix.os, 'windows')
+
+      - name: Move Binary (Linux/Mac)
         run: |
           mv micro.sfx buildroot/bin
+        if: ${{ !contains(matrix.os, 'windows') }}
 
       - name: SPC Combine
         run: |
