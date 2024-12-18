@@ -52,14 +52,14 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: php-parser-${{ github.ref_name }}-x64-win32
-          path: bin\php-parser-${{ github.ref_name }}-x64-win32
+          path: bin/php-parser-${{ github.ref_name }}-x64-win32.exe
 
       - name: Create Release
         uses: softprops/action-gh-release@v1
         if: startsWith(github.ref, 'refs/tags/')
         with:
           files: |
-            bin\php-parser-${{ github.ref_name }}-x64-win32
+            bin/php-parser-${{ github.ref_name }}-x64-win32.exe
           fail_on_unmatched_files: true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
