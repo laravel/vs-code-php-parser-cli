@@ -34,7 +34,7 @@ jobs:
 
       - name: Install SPC
         run: |
-          curl -L spc-windows-x64.exe https://github.com/crazywhalecc/static-php-cli/releases/latest/download/spc-windows-x64.exe
+          curl -L https://github.com/crazywhalecc/static-php-cli/releases/latest/download/spc-windows-x64.exe
           ls
           .\spc-windows-x64.exe --version
 
@@ -44,7 +44,7 @@ jobs:
 
       - name: Download PHP
         run: |
-          curl -L php-8.3.9-micro-win.zip https://dl.static-php.dev/static-php-cli/windows/spc-max/php-8.3.9-micro-win.zip
+          curl -L https://dl.static-php.dev/static-php-cli/windows/spc-max/php-8.3.9-micro-win.zip
           ls
           tar -xf php-8.3.9-micro-win.zip
           mkdir -p buildroot/bin
