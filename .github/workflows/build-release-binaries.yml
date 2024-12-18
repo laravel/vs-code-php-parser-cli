@@ -83,9 +83,18 @@ jobs:
           tar xzf "${{ matrix.compressed_file }}"
         if: ${{ !endsWith(matrix.compressed_file, 'zip') }}
 
-      - name: Move Binary
+      - name: Make Binary Directory (Windows)
+        run: |
+          if (-not (test-path buildroot/bin)) { mkdir -p buildroot/bin }
+        if: contains(matrix.os, 'windows')
+
+      - name: Make Binary Directory (Windows)
         run: |
           mkdir -p buildroot/bin
+        if: ${{ !contains(matrix.os, 'windows') }}
+
+      - name: Move Binary
+        run: |
           mv micro.sfx buildroot/bin
 
       - name: SPC Combine
