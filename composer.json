@@ -11,7 +11,7 @@
     "homepage": "https://laravel-zero.com",
     "type": "project",
     "license": "MIT",
-    "version": "0.1.34",
+    "version": "0.1.35",
     "support": {
         "issues": "https://github.com/laravel-zero/laravel-zero/issues",
         "source": "https://github.com/laravel-zero/laravel-zero"
