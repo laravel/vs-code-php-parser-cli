@@ -14,7 +14,7 @@ class DetectCommand extends Command
 
     public function handle(): void
     {
-        $code = base64_decode($this->argument('code'));
+        $code = $this->argument('code');
 
         if ($this->option('from-file')) {
             $code = file_get_contents(__DIR__ . '/../../tests/snippets/detect/' . $this->option('from-file') . '.php');
