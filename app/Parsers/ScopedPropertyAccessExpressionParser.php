@@ -6,7 +6,7 @@ use App\Contexts\AbstractContext;
 use App\Contexts\Argument;
 use App\Contexts\AssignmentValue;
 use App\Contexts\MethodCall;
-use Error;
+use Microsoft\PhpParser\Node\Expression\MemberAccessExpression;
 use Microsoft\PhpParser\Node\Expression\ScopedPropertyAccessExpression;
 use Microsoft\PhpParser\Node\Expression\Variable;
 
@@ -39,6 +39,16 @@ class ScopedPropertyAccessExpressionParser extends AbstractParser
             }
 
             return $result;
+        }
+
+        if ($node->scopeResolutionQualifier instanceof MemberAccessExpression) {
+            $parser = new MemberAccessExpressionParser;
+            $context = new MethodCall;
+            $context->parent = clone $this->context;
+            $parser->context($context);
+            $result = $parser->parseNode($node->scopeResolutionQualifier);
+
+            return $result->className ?? null;
         }
 
         return $node->scopeResolutionQualifier->getText();
