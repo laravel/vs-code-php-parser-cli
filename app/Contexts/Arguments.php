@@ -12,7 +12,7 @@ class Arguments extends AbstractContext
     public function castToArray(): array
     {
         $autocompletingIndex = collect($this->children)->search(
-            fn ($child) => $child->isAutoCompleting(),
+            fn ($child) => method_exists($child, 'isAutoCompleting') ? $child->isAutoCompleting() : false,
         );
 
         if ($autocompletingIndex === false) {
