@@ -18,13 +18,13 @@ class AssignmentValue extends AbstractContext
     {
         $child = $this->children[0] ?? null;
 
-        if ($child) {
-            return [
-                'name' => $child->name ?? $child->className ?? null,
-                'type' => $child->type(),
-            ];
+        if (!$child) {
+            return null;
         }
 
-        return null;
+        return [
+            'name' => $child->name ?? $child->className ?? null,
+            'type' => $child->type(),
+        ];
     }
 }
