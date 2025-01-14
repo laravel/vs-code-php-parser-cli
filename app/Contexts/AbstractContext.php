@@ -117,6 +117,18 @@ abstract class AbstractContext
         return $this->parent?->searchForVar($name) ?? null;
     }
 
+    public function addPropertyToNearestClassDefinition(string $name, $types = [])
+    {
+        if ($this instanceof ClassDefinition) {
+            $this->properties[] = [
+                'name'  => $name,
+                'types' => $types,
+            ];
+        } else {
+            $this->parent?->addPropertyToNearestClassDefinition($name, $types);
+        }
+    }
+
     public function searchForProperty(string $name)
     {
         if ($this instanceof ClassDefinition) {

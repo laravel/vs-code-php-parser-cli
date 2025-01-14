@@ -19,7 +19,13 @@ class ParameterParser extends AbstractParser
     {
         $this->context->name = $node->getName();
 
+        $constructorProperty = $node->visibilityToken !== null;
+
         if (!$node->typeDeclarationList) {
+            if ($constructorProperty) {
+                $this->context->addPropertyToNearestClassDefinition($this->context->name);
+            }
+
             return $this->context->value;
         }
 
@@ -29,6 +35,10 @@ class ParameterParser extends AbstractParser
             } elseif ($type instanceof QualifiedName) {
                 $this->context->types[] = (string) $type->getResolvedName();
             }
+        }
+
+        if ($constructorProperty) {
+            $this->context->addPropertyToNearestClassDefinition($this->context->name, $this->context->types);
         }
 
         return $this->context->value;
