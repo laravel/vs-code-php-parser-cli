@@ -5,6 +5,7 @@ namespace App\Parser;
 use App\Contexts\Base;
 use App\Support\Debugs;
 use Microsoft\PhpParser\Node\SourceFileNode;
+use Microsoft\PhpParser\Node\Statement\InlineHtml;
 use Microsoft\PhpParser\Parser;
 use Microsoft\PhpParser\SkippedToken;
 
@@ -31,6 +32,14 @@ class Walker
 
     protected function documentSkipsClosingQuote()
     {
+        if (count($this->sourceFile->statementList) === 1 && $this->sourceFile->statementList[0] instanceof InlineHtml) {
+            // Probably Blade...
+            $lastChar = substr($this->sourceFile->getFullText(), -1);
+            $closesWithQuote = in_array($lastChar, ['"', "'"]);
+
+            return $closesWithQuote;
+        }
+
         foreach ($this->sourceFile->getDescendantNodesAndTokens() as $child) {
             if ($child instanceof SkippedToken && $child->getText($this->sourceFile->getFullText()) === "'") {
                 return true;
