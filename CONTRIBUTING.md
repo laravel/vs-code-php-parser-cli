@@ -1,5 +1,13 @@
-## Building the Binary
+# Contributing
 
--   Ensure `composer.json` version is correct
--   `./php-parser compile-binary`
--   Commit and push
+## Installation
+
+```
+git clone https://github.com/laravel/vs-code-php-parser-cli.git
+cd vs-code-php-parser-cli
+composer install
+```
+
+To see available commands:
+
+`./php-parser`
