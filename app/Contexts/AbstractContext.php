@@ -129,6 +129,15 @@ abstract class AbstractContext
         }
     }
 
+    public function nearestClassDefinition()
+    {
+        if ($this instanceof ClassDefinition) {
+            return $this;
+        }
+
+        return $this->parent?->nearestClassDefinition() ?? null;
+    }
+
     public function searchForProperty(string $name)
     {
         if ($this instanceof ClassDefinition) {
