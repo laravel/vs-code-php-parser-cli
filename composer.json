@@ -36,9 +36,7 @@
     },
     "autoload": {
         "psr-4": {
-            "App\\": "app/",
-            "Database\\Factories\\": "database/factories/",
-            "Database\\Seeders\\": "database/seeders/"
+            "App\\": "app/"
         }
     },
     "autoload-dev": {
@@ -58,5 +56,10 @@
     "prefer-stable": true,
     "bin": [
         "php-parser"
-    ]
+    ],
+    "scripts": {
+        "pre-autoload-dump": [
+            "test -f fix-class-resolutions.php && php fix-class-resolutions.php || true"
+        ]
+    }
 }
