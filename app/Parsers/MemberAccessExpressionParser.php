@@ -5,6 +5,7 @@ namespace App\Parsers;
 use App\Contexts\AbstractContext;
 use App\Contexts\AssignmentValue;
 use App\Contexts\MethodCall;
+use Microsoft\PhpParser\Node\Expression\CallExpression;
 use Microsoft\PhpParser\Node\Expression\MemberAccessExpression;
 use Microsoft\PhpParser\Node\Expression\Variable;
 use Microsoft\PhpParser\Node\QualifiedName;
@@ -29,6 +30,17 @@ class MemberAccessExpressionParser extends AbstractParser
 
             if ($child instanceof Variable) {
                 if ($child->getName() === 'this') {
+                    if ($node->getParent() instanceof CallExpression) {
+                        // They are calling a method on the current class
+                        $result = $this->context->nearestClassDefinition();
+
+                        if ($result) {
+                            $this->context->className = $result->className;
+                        }
+
+                        continue;
+                    }
+
                     $propName = $child->getParent()->memberName->getFullText($node->getRoot()->getFullText());
 
                     $result = $this->context->searchForProperty($propName);
