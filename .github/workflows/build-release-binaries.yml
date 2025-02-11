@@ -53,6 +53,7 @@ jobs:
         run: |
           echo "" > .env
           php php-parser app:build --build-version=${{ github.ref_name }}
+          chmod +x ./builds/php-parser && ./builds/php-parser
 
       - name: Download PHP
         run: |
