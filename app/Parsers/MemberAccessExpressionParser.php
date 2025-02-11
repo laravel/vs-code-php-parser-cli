@@ -30,7 +30,7 @@ class MemberAccessExpressionParser extends AbstractParser
 
             if ($child instanceof Variable) {
                 if ($child->getName() === 'this') {
-                    if ($node->getParent() instanceof CallExpression) {
+                    if ($child->getParent()->getParent() instanceof CallExpression) {
                         // They are calling a method on the current class
                         $result = $this->context->nearestClassDefinition();
 
