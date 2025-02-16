@@ -25,7 +25,7 @@ class DetectCommand extends Command
             $this->log($result, $code);
         }
 
-        echo $result->toJson();
+        echo $result->toJson($this->option('debug') ? JSON_PRETTY_PRINT : 0);
     }
 
     protected function log($result, $code)
