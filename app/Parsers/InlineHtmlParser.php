@@ -8,6 +8,7 @@ use App\Parser\Parse;
 use App\Parser\Settings;
 use Microsoft\PhpParser\Node\Statement\InlineHtml;
 use Microsoft\PhpParser\Parser;
+use Microsoft\PhpParser\PositionUtilities;
 use Microsoft\PhpParser\Range;
 use Stillat\BladeParser\Document\Document;
 use Stillat\BladeParser\Nodes\BaseNode;
@@ -24,6 +25,8 @@ class InlineHtmlParser extends AbstractParser
         '{{'  => '}}',
     ];
 
+    protected $startLine = 0;
+
     /**
      * @var Blade
      */
@@ -33,6 +36,16 @@ class InlineHtmlParser extends AbstractParser
 
     public function parse(InlineHtml $node)
     {
+        if ($node->getStartPosition() > 0) {
+            $range = PositionUtilities::getRangeFromPosition(
+                $node->getStartPosition(),
+                mb_strlen($node->getText()),
+                $node->getRoot()->getFullText(),
+            );
+
+            $this->startLine = $range->start->line;
+        }
+
         $this->parseBladeContent(Document::fromText($node->getText()));
 
         if (count($this->items)) {
@@ -81,8 +94,8 @@ class InlineHtmlParser extends AbstractParser
                 $range->end->character += mb_strlen($suffix);
             }
 
-            $range->start->line += $node->position->startLine - 2;
-            $range->end->line += $node->position->startLine - 2;
+            $range->start->line += $this->startLine + $node->position->startLine - 2;
+            $range->end->line += $this->startLine +  $node->position->startLine - 2;
 
             return $range;
         };
@@ -127,8 +140,8 @@ class InlineHtmlParser extends AbstractParser
                 $range->end->character -= mb_strlen($safetyPrefix) - 1;
             }
 
-            $range->start->line += $node->position->startLine - 2;
-            $range->end->line += $node->position->startLine - 2;
+            $range->start->line += $this->startLine + $node->position->startLine - 2;
+            $range->end->line += $this->startLine + $node->position->startLine - 2;
 
             return $range;
         };
