@@ -98,8 +98,12 @@ abstract class AbstractContext
         return $newContext;
     }
 
-    public function searchForVar(string $name): AssignmentValue|string|null
+    public function searchForVar(?string $name): AssignmentValue|string|null
     {
+        if ($name === null) {
+            return null;
+        }
+
         if (property_exists($this, 'parameters') && $this->parameters instanceof Parameters) {
             foreach ($this->parameters->children as $param) {
                 if ($param->name === $name) {
@@ -117,8 +121,12 @@ abstract class AbstractContext
         return $this->parent?->searchForVar($name) ?? null;
     }
 
-    public function addPropertyToNearestClassDefinition(string $name, $types = [])
+    public function addPropertyToNearestClassDefinition(?string $name, $types = [])
     {
+        if ($name === null) {
+            return;
+        }
+
         if ($this instanceof ClassDefinition) {
             $this->properties[] = [
                 'name'  => $name,
