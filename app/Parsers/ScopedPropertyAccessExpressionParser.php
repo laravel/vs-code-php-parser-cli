@@ -4,6 +4,7 @@ namespace App\Parsers;
 
 use App\Contexts\AbstractContext;
 use App\Contexts\Argument;
+use App\Contexts\ArrayItem;
 use App\Contexts\AssignmentValue;
 use App\Contexts\MethodCall;
 use Microsoft\PhpParser\Node\Expression\MemberAccessExpression;
@@ -21,6 +22,10 @@ class ScopedPropertyAccessExpressionParser extends AbstractParser
     {
         $this->context->methodName = $node->memberName->getFullText($node->getRoot()->getFullText());
         $this->context->className = $this->resolveClassName($node);
+
+        if ($this->context->methodName === 'class') {
+            $this->context->methodName = null;
+        }
 
         return $this->context;
     }
@@ -59,6 +64,7 @@ class ScopedPropertyAccessExpressionParser extends AbstractParser
         if (
             $this->context instanceof Argument
             || $this->context instanceof AssignmentValue
+            || $this->context instanceof ArrayItem
         ) {
             return new MethodCall;
         }
