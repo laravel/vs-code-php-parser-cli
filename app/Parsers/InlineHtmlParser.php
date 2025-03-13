@@ -121,7 +121,7 @@ class InlineHtmlParser extends AbstractParser
             $result = Parse::parse($sourceFile);
 
             if (count($result->children) === 0) {
-                return;
+                continue;
             }
 
             $child = $result->children[0];
