@@ -6,12 +6,16 @@ use App\Contexts\AbstractContext;
 use App\Contexts\Blade;
 use App\Parser\Parse;
 use App\Parser\Settings;
+use Illuminate\Support\Collection;
+use Illuminate\Support\Str;
 use Microsoft\PhpParser\Node\Statement\InlineHtml;
 use Microsoft\PhpParser\Parser;
 use Microsoft\PhpParser\PositionUtilities;
 use Microsoft\PhpParser\Range;
 use Stillat\BladeParser\Document\Document;
 use Stillat\BladeParser\Nodes\BaseNode;
+use Stillat\BladeParser\Nodes\Components\ComponentNode;
+use Stillat\BladeParser\Nodes\Components\ParameterNode;
 use Stillat\BladeParser\Nodes\DirectiveNode;
 use Stillat\BladeParser\Nodes\EchoNode;
 use Stillat\BladeParser\Nodes\EchoType;
@@ -76,8 +80,89 @@ class InlineHtmlParser extends AbstractParser
                 $this->parseEchoNode($child);
             }
 
+            if ($child instanceof ComponentNode) {
+                $this->parseComponentNode($child);
+            }
+
             $this->parseBladeContent($child);
         }
+    }
+
+    protected function parseComponentNode(ComponentNode $node)
+    {
+        /** @var Collection<int, ParameterNode> $parameters */
+        $parameters = $node->getParameters();
+
+        foreach ($parameters as $parameter) {
+            $prefix = Str::match('/^(@|{{{|{{|{!!)/', $parameter->value);
+
+            match ($prefix) {
+                '@'     => $this->doBladeDirectiveParameterParse($parameter),
+                default => $this->doEchoParameterParse($parameter, $prefix),
+            };
+        }
+    }
+
+    protected function doBladeDirectiveParameterParse(ParameterNode $node)
+    {
+        $safetyPrefix = 'directive';
+        $snippet = "<?php\n" . str_repeat(' ', $node->getStartIndentationLevel()) . str_replace('@', $safetyPrefix, $node->value . ';');
+        $sourceFile = (new Parser)->parseSourceFile($snippet);
+
+        Settings::$calculatePosition = function (Range $range) use ($node, $safetyPrefix) {
+            if ($range->start->line === 1) {
+                $prefixPosition = strpos($node->content, '@');
+
+                $range->start->character -= mb_strlen($safetyPrefix) + 1;
+                $range->start->character += $node->position->startColumn + $prefixPosition - 1;
+                $range->end->character -= mb_strlen($safetyPrefix) + 1;
+                $range->end->character += $node->position->startColumn + $prefixPosition - 1;
+            }
+
+            $range->start->line += $this->startLine + $node->position->startLine - 2;
+            $range->end->line += $this->startLine + $node->position->startLine - 2;
+
+            return $range;
+        };
+
+        $result = Parse::parse($sourceFile);
+
+        $child = $result->children[0];
+
+        $child->methodName = '@' . substr($child->methodName, mb_strlen($safetyPrefix));
+
+        $this->items[] = $child;
+    }
+
+    protected function doEchoParameterParse(ParameterNode $node, string $prefix)
+    {
+        $snippet = "<?php\n" . str_repeat(' ', $node->getStartIndentationLevel()) . str_replace($prefix, '', $node->value) . ';';
+
+        $sourceFile = (new Parser)->parseSourceFile($snippet);
+
+        Settings::$calculatePosition = function (Range $range) use ($node, $prefix) {
+            if ($range->start->line === 1) {
+                $prefixPosition = !empty($prefix) ? strpos($node->content, $prefix) : strpos($node->content, '"') - 1;
+
+                $range->start->character += $node->position->startColumn + $prefixPosition - 1;
+                $range->end->character += $node->position->startColumn + $prefixPosition - 1;
+            }
+
+            $range->start->line += $this->startLine + $node->position->startLine - 2;
+            $range->end->line += $this->startLine + $node->position->startLine - 2;
+
+            return $range;
+        };
+
+        $result = Parse::parse($sourceFile);
+
+        if (count($result->children) === 0) {
+            return;
+        }
+
+        $child = $result->children[0];
+
+        $this->items[] = $child;
     }
 
     protected function doEchoParse(BaseNode $node, $prefix, $content)
@@ -95,7 +180,7 @@ class InlineHtmlParser extends AbstractParser
             }
 
             $range->start->line += $this->startLine + $node->position->startLine - 2;
-            $range->end->line += $this->startLine +  $node->position->startLine - 2;
+            $range->end->line += $this->startLine + $node->position->startLine - 2;
 
             return $range;
         };
