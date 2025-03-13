@@ -94,75 +94,40 @@ class InlineHtmlParser extends AbstractParser
         $parameters = $node->getParameters();
 
         foreach ($parameters as $parameter) {
-            $prefix = Str::match('/^(@|{{{|{{|{!!)/', $parameter->value);
+            $prefix = Str::match('/^({{{|{{|{!!)/', $parameter->value);
 
-            match ($prefix) {
-                '@'     => $this->doBladeDirectiveParameterParse($parameter),
-                default => $this->doEchoParameterParse($parameter, $prefix),
+            $snippet = "<?php\n" . str_repeat(' ', $node->getStartIndentationLevel()) . str_replace($prefix, '', $parameter->value) . ';';
+
+            $sourceFile = (new Parser)->parseSourceFile($snippet);
+
+            Settings::$calculatePosition = function (Range $range) use ($node, $parameter) {
+                if ($range->start->line === 1) {
+                    $rangeCharacters = $range->end->character - $range->start->character;
+                    // If component has />, then we need to remove 1 character
+                    $selfClosingCharacter = $node->getIsSelfClosing() ? 1 : 0;
+
+                    $firstQuotePosition = strpos($parameter->content, "'");
+
+                    $range->start->character = $parameter->position->startColumn + $firstQuotePosition - $selfClosingCharacter;
+                    $range->end->character = $parameter->position->startColumn + $firstQuotePosition + $rangeCharacters - $selfClosingCharacter;
+                }
+
+                $range->start->line += $this->startLine + $parameter->position->startLine - 2;
+                $range->end->line += $this->startLine + $parameter->position->startLine - 2;
+
+                return $range;
             };
-        }
-    }
 
-    protected function doBladeDirectiveParameterParse(ParameterNode $node)
-    {
-        $safetyPrefix = 'directive';
-        $snippet = "<?php\n" . str_repeat(' ', $node->getStartIndentationLevel()) . str_replace('@', $safetyPrefix, $node->value . ';');
-        $sourceFile = (new Parser)->parseSourceFile($snippet);
+            $result = Parse::parse($sourceFile);
 
-        Settings::$calculatePosition = function (Range $range) use ($node, $safetyPrefix) {
-            if ($range->start->line === 1) {
-                $prefixPosition = strpos($node->content, '@');
-
-                $range->start->character -= mb_strlen($safetyPrefix) + 1;
-                $range->start->character += $node->position->startColumn + $prefixPosition - 1;
-                $range->end->character -= mb_strlen($safetyPrefix) + 1;
-                $range->end->character += $node->position->startColumn + $prefixPosition - 1;
+            if (count($result->children) === 0) {
+                return;
             }
 
-            $range->start->line += $this->startLine + $node->position->startLine - 2;
-            $range->end->line += $this->startLine + $node->position->startLine - 2;
+            $child = $result->children[0];
 
-            return $range;
-        };
-
-        $result = Parse::parse($sourceFile);
-
-        $child = $result->children[0];
-
-        $child->methodName = '@' . substr($child->methodName, mb_strlen($safetyPrefix));
-
-        $this->items[] = $child;
-    }
-
-    protected function doEchoParameterParse(ParameterNode $node, string $prefix)
-    {
-        $snippet = "<?php\n" . str_repeat(' ', $node->getStartIndentationLevel()) . str_replace($prefix, '', $node->value) . ';';
-
-        $sourceFile = (new Parser)->parseSourceFile($snippet);
-
-        Settings::$calculatePosition = function (Range $range) use ($node, $prefix) {
-            if ($range->start->line === 1) {
-                $prefixPosition = !empty($prefix) ? strpos($node->content, $prefix) : strpos($node->content, '"') - 1;
-
-                $range->start->character += $node->position->startColumn + $prefixPosition - 1;
-                $range->end->character += $node->position->startColumn + $prefixPosition - 1;
-            }
-
-            $range->start->line += $this->startLine + $node->position->startLine - 2;
-            $range->end->line += $this->startLine + $node->position->startLine - 2;
-
-            return $range;
-        };
-
-        $result = Parse::parse($sourceFile);
-
-        if (count($result->children) === 0) {
-            return;
+            $this->items[] = $child;
         }
-
-        $child = $result->children[0];
-
-        $this->items[] = $child;
     }
 
     protected function doEchoParse(BaseNode $node, $prefix, $content)
