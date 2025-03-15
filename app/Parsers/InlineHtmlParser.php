@@ -95,7 +95,7 @@ class InlineHtmlParser extends AbstractParser
             }
 
             $range->start->line += $this->startLine + $node->position->startLine - 2;
-            $range->end->line += $this->startLine +  $node->position->startLine - 2;
+            $range->end->line += $this->startLine + $node->position->startLine - 2;
 
             return $range;
         };
@@ -124,13 +124,19 @@ class InlineHtmlParser extends AbstractParser
 
     protected function parseBladeDirective(DirectiveNode $node)
     {
-        if ($node->isClosingDirective || !$node->hasArguments()) {
+        $content = $node->toString();
+
+        if (!$node->hasArguments()) {
+            $content .= "('";
+        }
+
+        if ($node->isClosingDirective) {
             return;
         }
 
         $methodUsed = '@' . $node->content;
         $safetyPrefix = 'directive';
-        $snippet = "<?php\n" . str_repeat(' ', $node->getStartIndentationLevel()) . str_replace($methodUsed, $safetyPrefix . $node->content, $node->toString() . ';');
+        $snippet = "<?php\n" . str_repeat(' ', $node->getStartIndentationLevel()) . str_replace($methodUsed, $safetyPrefix . $node->content, $content . ';');
 
         $sourceFile = (new Parser)->parseSourceFile($snippet);
 
@@ -147,6 +153,10 @@ class InlineHtmlParser extends AbstractParser
         };
 
         $result = Parse::parse($sourceFile);
+
+        if (count($result->children) === 0) {
+            return;
+        }
 
         $child = $result->children[0];
 
