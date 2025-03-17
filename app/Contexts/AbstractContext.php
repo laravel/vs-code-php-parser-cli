@@ -2,6 +2,7 @@
 
 namespace App\Contexts;
 
+use App\Contexts\Contracts\PossibleAutocompleting;
 use Illuminate\Support\Arr;
 use Microsoft\PhpParser\Range;
 
@@ -48,20 +49,20 @@ abstract class AbstractContext
     public function findAutocompleting(?AbstractContext $context = null)
     {
         $context = $context ?? $this;
-        $result = $this->seachForAutocompleting($context, true);
+        $result = $this->searchForAutocompleting($context, true);
         $lastResult = null;
 
         while ($result !== null) {
             $lastResult = $result;
-            $result = $this->seachForAutocompleting($result);
+            $result = $this->searchForAutocompleting($result);
         }
 
         return $lastResult;
     }
 
-    protected function seachForAutocompleting(AbstractContext $context, $checkCurrent = false)
+    protected function searchForAutocompleting(AbstractContext $context, $checkCurrent = false)
     {
-        if ($checkCurrent && $context->autocompleting && ($context instanceof MethodCall || $context instanceof ObjectValue)) {
+        if ($checkCurrent && $context->autocompleting && $context instanceof PossibleAutocompleting) {
             return $context;
         }
 

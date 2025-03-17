@@ -2,7 +2,9 @@
 
 namespace App\Contexts;
 
-class ArrayValue extends AbstractContext
+use App\Contexts\Contracts\PossibleAutocompleting;
+
+class ArrayValue extends AbstractContext implements PossibleAutocompleting
 {
     public function type(): string
     {

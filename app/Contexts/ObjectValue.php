@@ -2,7 +2,9 @@
 
 namespace App\Contexts;
 
-class ObjectValue extends AbstractContext
+use App\Contexts\Contracts\PossibleAutocompleting;
+
+class ObjectValue extends AbstractContext implements PossibleAutocompleting
 {
     public ?string $className = null;
 
