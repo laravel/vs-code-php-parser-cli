@@ -20,7 +20,7 @@ class ArrayCreationExpressionParser extends AbstractParser
     private function isParentNode(Node $node, array $nodeClasses): bool
     {
         if ($node->getParent() !== null) {
-            if (collect($nodeClasses)->contains(get_class($node->getParent()))) {
+            if (in_array(get_class($node->getParent()), $nodeClasses)) {
                 return true;
             }
 
