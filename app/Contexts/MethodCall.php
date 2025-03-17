@@ -2,10 +2,10 @@
 
 namespace App\Contexts;
 
-use App\Contexts\Contracts\PossibleAutocompleting;
-
-class MethodCall extends AbstractContext implements PossibleAutocompleting
+class MethodCall extends AbstractContext
 {
+    public bool $findable = true;
+
     public ?string $methodName = null;
 
     public ?string $className = null;

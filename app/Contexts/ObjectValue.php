@@ -2,10 +2,10 @@
 
 namespace App\Contexts;
 
-use App\Contexts\Contracts\PossibleAutocompleting;
-
-class ObjectValue extends AbstractContext implements PossibleAutocompleting
+class ObjectValue extends AbstractContext
 {
+    public bool $findable = true;
+
     public ?string $className = null;
 
     public Arguments $arguments;

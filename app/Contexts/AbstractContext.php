@@ -2,13 +2,18 @@
 
 namespace App\Contexts;
 
-use App\Contexts\Contracts\PossibleAutocompleting;
 use Illuminate\Support\Arr;
 use Microsoft\PhpParser\Range;
 
 abstract class AbstractContext
 {
     public array $children = [];
+
+    /**
+     * Whether this context can be found as last result
+     * in findAutocompleting method
+     */
+    public bool $findable = false;
 
     public bool $autocompleting = false;
 
@@ -62,7 +67,7 @@ abstract class AbstractContext
 
     protected function searchForAutocompleting(AbstractContext $context, $checkCurrent = false)
     {
-        if ($checkCurrent && $context->autocompleting && $context instanceof PossibleAutocompleting) {
+        if ($checkCurrent && $context->autocompleting && $context->findable) {
             return $context;
         }
 

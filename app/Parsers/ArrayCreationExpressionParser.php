@@ -35,8 +35,10 @@ class ArrayCreationExpressionParser extends AbstractParser
         // then we need to ignore autocompleting for ArrayValue because
         // priority is given to App\Contexts\MethodCall
         if (!$this->isParentNode($node, CallExpression::class)) {
-            $this->context->autocompleting = $node->closeParenOrBracket instanceof MissingToken;
+            $this->context->findable = true;
         }
+
+        $this->context->autocompleting = $node->closeParenOrBracket instanceof MissingToken;
 
         return $this->context;
     }
