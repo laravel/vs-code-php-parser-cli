@@ -32,7 +32,7 @@ class ArrayCreationExpressionParser extends AbstractParser
     public function parse(ArrayCreationExpression $node)
     {
         // If array is inside a method, for example Validator::validate(['
-        // then we need to ignore autocompleting for ArrayValue because
+        // then we need to ignore findable for ArrayValue because
         // priority is given to App\Contexts\MethodCall
         if (!$this->isParentNode($node, CallExpression::class)) {
             $this->context->findable = true;
