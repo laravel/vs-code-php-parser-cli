@@ -4,6 +4,8 @@ namespace App\Contexts;
 
 class Variable extends AbstractContext
 {
+    public bool $findable = true;
+
     public ?string $name = null;
 
     protected bool $hasChildren = false;
