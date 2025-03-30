@@ -53,9 +53,8 @@ class Walker
     {
         if (count($this->sourceFile->statementList) === 1 && $this->sourceFile->statementList[0] instanceof InlineHtml) {
             $lastChars = substr($this->sourceFile->getFullText(), -2);
-            $closesWithObjectOperator = $lastChars === '->';
 
-            return $closesWithObjectOperator;
+            return $lastChars === '->';
         }
 
         return false;
