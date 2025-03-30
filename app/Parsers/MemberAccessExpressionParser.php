@@ -45,7 +45,9 @@ class MemberAccessExpressionParser extends AbstractParser
 
             if ($child instanceof Variable) {
                 if ($child->getName() === 'this') {
-                    if ($child->getParent()->getParent() instanceof CallExpression) {
+                    $parent = $child->getParent();
+
+                    if ($parent?->getParent() instanceof CallExpression) {
                         // They are calling a method on the current class
                         $result = $this->context->nearestClassDefinition();
 
@@ -56,12 +58,14 @@ class MemberAccessExpressionParser extends AbstractParser
                         continue;
                     }
 
-                    $propName = $child->getParent()->memberName->getFullText($node->getRoot()->getFullText());
+                    if ($parent instanceof MemberAccessExpression) {
+                        $propName = $parent->memberName->getFullText($node->getRoot()->getFullText());
 
-                    $result = $this->context->searchForProperty($propName);
+                        $result = $this->context->searchForProperty($propName);
 
-                    if ($result) {
-                        $this->context->className = $result['types'][0] ?? null;
+                        if ($result) {
+                            $this->context->className = $result['types'][0] ?? null;
+                        }
                     }
 
                     continue;
