@@ -35,19 +35,14 @@ class InlineHtmlParser extends AbstractParser
     protected array $items = [];
 
     /**
-     * There is a bug with the Stillat\BladeParser\Document\Document::fromText parser.
-     * It doesn't parse the special characters correctly. It treats these characters
+     * Stillat\BladeParser\Document\Document::fromText treats multibyte characters
      * as indentations and spaces resulting in a miscalculated Node position.
      *
-     * This function replaces the special characters with a single, placeholder character
+     * This function replaces the multibyte characters with a single, placeholder character
      */
-    private function replaceSpecialAndEmoji(string $text, string $placeholder = '*'): string
+    private function replaceMultibyteChars(string $text, string $placeholder = '*'): string
     {
-        return preg_replace(
-            '/[\x{3040}-\x{30FF}\x{4E00}-\x{9FFF}\x{1F300}-\x{1FAFF}\x{1F000}-\x{1F6FF}\x{2190}-\x{21AA}\x{2300}-\x{23FF}\x{25A0}-\x{25FF}\x{1F600}-\x{1F64F}\x{1F680}-\x{1F6FF}\x{2700}-\x{27BF}]/u',
-            $placeholder,
-            $text
-        );
+        return preg_replace('/[^\x00-\x7F]/u', $placeholder, $text);
     }
 
     public function parse(InlineHtml $node)
@@ -63,7 +58,7 @@ class InlineHtmlParser extends AbstractParser
         }
 
         $this->parseBladeContent(Document::fromText(
-            $this->replaceSpecialAndEmoji($node->getText())
+            $this->replaceMultibyteChars($node->getText())
         ));
 
         if (count($this->items)) {
