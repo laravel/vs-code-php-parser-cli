@@ -26,8 +26,38 @@ class Walker
     public function __construct(protected string $document, $debug = false)
     {
         $this->debug = $debug;
-        $this->sourceFile = (new Parser)->parseSourceFile(trim($this->document));
+        $this->sourceFile = (new Parser)->parseSourceFile(
+            $this->replaceLastDoubleQuoteToSingleQuote(trim($this->document)),
+        );
         $this->context = new Context;
+    }
+
+    /**
+     * If a last character is a double quote, for example:
+     *
+     * {{ config("
+     *
+     * then Microsoft\PhpParser\Parser::parseSourceFile returns autocompletingIndex: 1
+     * instead 0. Probably the parser turns the string into something like this:
+     *
+     * "{{ config(";"
+     *
+     * and returns ";" as an argument.
+     *
+     * This function replaces the last double quote with a single quote.
+     */
+    private function replaceLastDoubleQuoteToSingleQuote(string $text): string
+    {
+        if (substr($text, -1) === '"') {
+            $countDoubleQuotes = substr_count($text, '"');
+
+            // We have to exclude cases with an even number of double quotes
+            if ($countDoubleQuotes % 2 !== 0) {
+                return substr($text, 0, -1) . "'";
+            }
+        }
+
+        return $text;
     }
 
     protected function documentSkipsClosingQuote()
