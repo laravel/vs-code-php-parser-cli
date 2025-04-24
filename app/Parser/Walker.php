@@ -26,9 +26,8 @@ class Walker
     public function __construct(protected string $document, $debug = false)
     {
         $this->debug = $debug;
-        $this->sourceFile = (new Parser)->parseSourceFile(
-            $this->replaceLastDoubleQuoteToSingleQuote(trim($this->document)),
-        );
+        $this->document = $document;
+        $this->sourceFile = (new Parser)->parseSourceFile(trim($this->document));
         $this->context = new Context;
     }
 
@@ -44,20 +43,13 @@ class Walker
      *
      * and returns ";" as an argument.
      *
-     * This function replaces the last double quote with a single quote.
+     * This function parse source file again if last character is a double quote.
      */
-    private function replaceLastDoubleQuoteToSingleQuote(string $text): string
+    private function setSourceFileAgainIfLastCharacterIsDoubleQuote(string $text): void
     {
         if (substr($text, -1) === '"') {
-            $countDoubleQuotes = substr_count($text, '"');
-
-            // We have to exclude cases with an even number of double quotes
-            if ($countDoubleQuotes % 2 !== 0) {
-                return substr($text, 0, -1) . "'";
-            }
+            $this->sourceFile = (new Parser)->parseSourceFile(trim(substr($text, 0, -1) . "'"));
         }
-
-        return $text;
     }
 
     protected function documentSkipsClosingQuote()
@@ -84,6 +76,8 @@ class Walker
         if (!$this->documentSkipsClosingQuote()) {
             return new Base;
         }
+
+        $this->setSourceFileAgainIfLastCharacterIsDoubleQuote($this->document);
 
         Parse::$debug = $this->debug;
 
