@@ -26,8 +26,8 @@ class Walker
     public function __construct(protected string $document, $debug = false)
     {
         $this->debug = $debug;
-        $this->document = $document;
-        $this->sourceFile = (new Parser)->parseSourceFile(trim($this->document));
+        $this->document = trim($document);
+        $this->sourceFile = (new Parser)->parseSourceFile($this->document);
         $this->context = new Context;
     }
 
@@ -45,10 +45,10 @@ class Walker
      *
      * This function parse source file again if last character is a double quote.
      */
-    private function setSourceFileAgainIfLastCharacterIsDoubleQuote(string $text): void
+    private function parseSourceFileAgainIfLastCharacterIsDoubleQuote(): void
     {
-        if (substr($text, -1) === '"') {
-            $this->sourceFile = (new Parser)->parseSourceFile(trim(substr($text, 0, -1) . "'"));
+        if (substr($this->document, -1) === '"') {
+            $this->sourceFile = (new Parser)->parseSourceFile(substr($this->document, 0, -1) . "'");
         }
     }
 
@@ -77,7 +77,7 @@ class Walker
             return new Base;
         }
 
-        $this->setSourceFileAgainIfLastCharacterIsDoubleQuote($this->document);
+        $this->parseSourceFileAgainIfLastCharacterIsDoubleQuote();
 
         Parse::$debug = $this->debug;
 
