@@ -67,7 +67,7 @@ class Walker
      *
      * and returns ";" as an argument.
      *
-     * This function replaces the last double quote with a single quote.
+     * This function replaces the last double quote with a single quote in document.
      */
     private function replaceLastDoubleQuoteWithSingleQuote(): string
     {
