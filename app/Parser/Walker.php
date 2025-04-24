@@ -55,20 +55,6 @@ class Walker
         return substr($this->document, -1) === '"';
     }
 
-    /**
-     * If a last character is a double quote, for example:
-     *
-     * {{ config("
-     *
-     * then Microsoft\PhpParser\Parser::parseSourceFile returns autocompletingIndex: 1
-     * instead 0. Probably the parser turns the string into something like this:
-     *
-     * "{{ config(";"
-     *
-     * and returns ";" as an argument.
-     *
-     * This function replaces the last double quote with a single quote in document.
-     */
     private function replaceLastDoubleQuoteWithSingleQuote(): string
     {
         return substr($this->document, 0, -1) . "'";
@@ -80,6 +66,20 @@ class Walker
             return new Base;
         }
 
+        /**
+         * If a last character is a double quote, for example:
+         *
+         * {{ config("
+         *
+         * then Microsoft\PhpParser\Parser::parseSourceFile returns autocompletingIndex: 1
+         * instead 0. Probably the parser turns the string into something like this:
+         *
+         * "{{ config(";"
+         *
+         * and returns ";" as an argument.
+         *
+         * This line of code checks if the last character is a double quote and fixes it.
+         */
         if ($this->documentHasDoubleQuoteAsLastCharacter()) {
             return (new self($this->replaceLastDoubleQuoteWithSingleQuote(), $this->debug))->walk();
         }
