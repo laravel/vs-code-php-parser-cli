@@ -4,6 +4,8 @@ namespace App\Contexts;
 
 class ObjectValue extends AbstractContext
 {
+    public bool $isAbleToAutocomplete = true;
+
     public ?string $className = null;
 
     public Arguments $arguments;

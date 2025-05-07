@@ -9,6 +9,8 @@ abstract class AbstractContext
 {
     public array $children = [];
 
+    public bool $isAbleToAutocomplete = false;
+
     public bool $autocompleting = false;
 
     protected array $freshObject;
@@ -48,20 +50,20 @@ abstract class AbstractContext
     public function findAutocompleting(?AbstractContext $context = null)
     {
         $context = $context ?? $this;
-        $result = $this->seachForAutocompleting($context, true);
+        $result = $this->searchForAutocompleting($context, true);
         $lastResult = null;
 
         while ($result !== null) {
             $lastResult = $result;
-            $result = $this->seachForAutocompleting($result);
+            $result = $this->searchForAutocompleting($result);
         }
 
         return $lastResult;
     }
 
-    protected function seachForAutocompleting(AbstractContext $context, $checkCurrent = false)
+    protected function searchForAutocompleting(AbstractContext $context, $checkCurrent = false)
     {
-        if ($checkCurrent && $context->autocompleting && ($context instanceof MethodCall || $context instanceof ObjectValue)) {
+        if ($checkCurrent && $context->autocompleting && $context->isAbleToAutocomplete) {
             return $context;
         }
 
