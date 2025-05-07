@@ -26,7 +26,8 @@ class Walker
     public function __construct(protected string $document, $debug = false)
     {
         $this->debug = $debug;
-        $this->sourceFile = (new Parser)->parseSourceFile(trim($this->document));
+        $this->document = trim($document);
+        $this->sourceFile = (new Parser)->parseSourceFile($this->document);
         $this->context = new Context;
     }
 
@@ -49,10 +50,38 @@ class Walker
         return false;
     }
 
+    private function documentHasDoubleQuoteAsLastCharacter(): bool
+    {
+        return substr($this->document, -1) === '"';
+    }
+
+    private function replaceLastDoubleQuoteWithSingleQuote(): string
+    {
+        return substr($this->document, 0, -1) . "'";
+    }
+
     public function walk()
     {
         if (!$this->documentSkipsClosingQuote()) {
             return new Base;
+        }
+
+        /**
+         * If a last character is a double quote, for example:
+         *
+         * {{ config("
+         *
+         * then Microsoft\PhpParser\Parser::parseSourceFile returns autocompletingIndex: 1
+         * instead 0. Probably the parser turns the string into something like this:
+         *
+         * "{{ config(";"
+         *
+         * and returns ";" as an argument.
+         *
+         * This line of code checks if the last character is a double quote and fixes it.
+         */
+        if ($this->documentHasDoubleQuoteAsLastCharacter()) {
+            return (new self($this->replaceLastDoubleQuoteWithSingleQuote(), $this->debug))->walk();
         }
 
         Parse::$debug = $this->debug;
