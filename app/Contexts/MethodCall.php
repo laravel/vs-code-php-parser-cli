@@ -4,6 +4,8 @@ namespace App\Contexts;
 
 class MethodCall extends AbstractContext
 {
+    public bool $findable = true;
+
     public ?string $methodName = null;
 
     public ?string $className = null;

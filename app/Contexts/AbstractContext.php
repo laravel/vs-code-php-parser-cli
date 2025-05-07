@@ -9,6 +9,12 @@ abstract class AbstractContext
 {
     public array $children = [];
 
+    /**
+     * Whether this context can be found as last result
+     * in findAutocompleting method
+     */
+    public bool $findable = false;
+
     public bool $autocompleting = false;
 
     protected array $freshObject;
@@ -48,20 +54,20 @@ abstract class AbstractContext
     public function findAutocompleting(?AbstractContext $context = null)
     {
         $context = $context ?? $this;
-        $result = $this->seachForAutocompleting($context, true);
+        $result = $this->searchForAutocompleting($context, true);
         $lastResult = null;
 
         while ($result !== null) {
             $lastResult = $result;
-            $result = $this->seachForAutocompleting($result);
+            $result = $this->searchForAutocompleting($result);
         }
 
         return $lastResult;
     }
 
-    protected function seachForAutocompleting(AbstractContext $context, $checkCurrent = false)
+    protected function searchForAutocompleting(AbstractContext $context, $checkCurrent = false)
     {
-        if ($checkCurrent && $context->autocompleting && ($context instanceof MethodCall || $context instanceof ObjectValue)) {
+        if ($checkCurrent && $context->autocompleting && $context->findable) {
             return $context;
         }
 
