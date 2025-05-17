@@ -9,11 +9,7 @@ abstract class AbstractContext
 {
     public array $children = [];
 
-    /**
-     * Whether this context can be found as last result
-     * in findAutocompleting method
-     */
-    public bool $findable = false;
+    public bool $isAbleToAutocomplete = false;
 
     public bool $autocompleting = false;
 
@@ -67,7 +63,7 @@ abstract class AbstractContext
 
     protected function searchForAutocompleting(AbstractContext $context, $checkCurrent = false)
     {
-        if ($checkCurrent && $context->autocompleting && $context->findable) {
+        if ($checkCurrent && $context->autocompleting && $context->isAbleToAutocomplete) {
             return $context;
         }
 
