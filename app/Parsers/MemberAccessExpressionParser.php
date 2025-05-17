@@ -17,8 +17,23 @@ class MemberAccessExpressionParser extends AbstractParser
      */
     protected AbstractContext $context;
 
+    /**
+     * Check if the node has a object operator and
+     * is a last element in the string
+     */
+    private function hasObjectOperator(MemberAccessExpression $node): bool
+    {
+        $name = $node->memberName->getFullText($node->getRoot()->getFullText());
+
+        return preg_match('/->' . $name . '->;$/s', $node->getFileContents());
+    }
+
     public function parse(MemberAccessExpression $node)
     {
+        if ($this->hasObjectOperator($node)) {
+            $this->context->autocompleting = true;
+        }
+
         $this->context->methodName = $node->memberName->getFullText($node->getRoot()->getFullText());
 
         foreach ($node->getDescendantNodes() as $child) {
