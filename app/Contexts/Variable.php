@@ -4,7 +4,7 @@ namespace App\Contexts;
 
 class Variable extends AbstractContext
 {
-    public bool $findable = true;
+    public bool $isAbleToAutocomplete = true;
 
     public ?string $name = null;
 
