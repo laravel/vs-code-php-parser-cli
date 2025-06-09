@@ -45,6 +45,26 @@ class InlineHtmlParser extends AbstractParser
         return preg_replace('/[^\x00-\x7F]/u', $placeholder, $text);
     }
 
+    private function createDocument(string $text): Document
+    {
+        // First, we need to parse the text with the multibyte characters
+        $document = Document::fromText($text);
+
+        // Then, we need to parse the text with multibyte characters replaced by placeholders
+        // because Stillat\BladeParser\Document\Document::fromText treats multibyte characters
+        // as indentations and spaces resulting in a miscalculated Node position
+        $documentWithPlaceholders = Document::fromText($this->replaceMultibyteChars($text));
+
+        // Finally, we need to update the Node positions from original text
+        $nodesWithPlaceholders = $documentWithPlaceholders->getNodes();
+
+        foreach ($document->getNodes() as $index => $node) {
+            $node->position = $nodesWithPlaceholders[$index]->position;
+        }
+
+        return $document;
+    }
+
     public function parse(InlineHtml $node)
     {
         if ($node->getStartPosition() > 0) {
@@ -57,9 +77,7 @@ class InlineHtmlParser extends AbstractParser
             $this->startLine = $range->start->line;
         }
 
-        $this->parseBladeContent(Document::fromText(
-            $this->replaceMultibyteChars($node->getText())
-        ));
+        $this->parseBladeContent($this->createDocument($node->getText()));
 
         if (count($this->items)) {
             $blade = new Blade;
