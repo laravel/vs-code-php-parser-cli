@@ -50,7 +50,7 @@ class InlineHtmlParser extends AbstractParser
             $this->startLine = $range->start->line;
         }
 
-        $this->parseBladeContent(Document::fromText($node->getText()));
+        $this->parseBladeContent(Document::fromText($node->getText(), customComponentTags: ['flux']));
 
         if (count($this->items)) {
             $blade = new Blade;
