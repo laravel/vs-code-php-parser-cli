@@ -38,6 +38,17 @@ class InlineHtmlParser extends AbstractParser
 
     protected array $items = [];
 
+    /**
+     * Stillat\BladeParser\Document\Document::fromText treats multibyte characters
+     * as indentations and spaces resulting in a miscalculated Node position.
+     *
+     * This function replaces the multibyte characters with a single, placeholder character
+     */
+    private function replaceMultibyteChars(string $text, string $placeholder = '*'): string
+    {
+        return preg_replace('/[^\x00-\x7F]/u', $placeholder, $text);
+    }
+
     public function parse(InlineHtml $node)
     {
         if ($node->getStartPosition() > 0) {
@@ -50,7 +61,10 @@ class InlineHtmlParser extends AbstractParser
             $this->startLine = $range->start->line;
         }
 
-        $this->parseBladeContent(Document::fromText($node->getText(), customComponentTags: ['flux']));
+        $this->parseBladeContent(Document::fromText(
+            document: $this->replaceMultibyteChars($node->getText()),
+            customComponentTags: ['flux']
+        ));
 
         if (count($this->items)) {
             $blade = new Blade;

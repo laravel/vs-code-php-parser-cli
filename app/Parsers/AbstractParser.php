@@ -55,4 +55,14 @@ abstract class AbstractParser
             echo $this->indent($message) . PHP_EOL;
         }
     }
+
+    protected function parentNodeIs(Node $node, array $nodeClasses): bool
+    {
+        if ($node->getParent() === null) {
+            return false;
+        }
+
+        return in_array(get_class($node->getParent()), $nodeClasses)
+            || $this->parentNodeIs($node->getParent(), $nodeClasses);
+    }
 }
