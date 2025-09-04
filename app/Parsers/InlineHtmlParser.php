@@ -129,10 +129,8 @@ class InlineHtmlParser extends AbstractParser
                     // If a component prefix is not x (for example flux:input instead x-flux::input)
                     // then Stillat/blade-parser returns miscalculated positions. I don't know why
                     if ($node->componentPrefix === "flux") {
-                        $prefixCharacters = strlen($node->componentPrefix) - 1;
-
-                        $range->start->character += $prefixCharacters + $selfClosingCharacter;
-                        $range->end->character += $prefixCharacters + $selfClosingCharacter;
+                        $range->start->character += 3 + $selfClosingCharacter;
+                        $range->end->character += 3 + $selfClosingCharacter;
                     }
                 }
 
