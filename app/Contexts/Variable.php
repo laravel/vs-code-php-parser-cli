@@ -18,7 +18,7 @@ class Variable extends AbstractContext
     public function castToArray(): array
     {
         return [
-            'name' => $this->varName,
+            'varName' => $this->varName,
             'className' => $this->className,
         ];
     }
