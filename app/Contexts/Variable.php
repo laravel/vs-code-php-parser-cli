@@ -4,7 +4,7 @@ namespace App\Contexts;
 
 class Variable extends AbstractContext
 {
-    public ?string $varName = null;
+    public ?string $name = null;
 
     public ?string $className = null;
 
@@ -18,7 +18,7 @@ class Variable extends AbstractContext
     public function castToArray(): array
     {
         return [
-            'varName' => $this->varName,
+            'name' => $this->name,
             'className' => $this->className,
         ];
     }
