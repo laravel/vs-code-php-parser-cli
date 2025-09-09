@@ -5,6 +5,7 @@ namespace App\Parsers;
 use App\Contexts\AbstractContext;
 use App\Contexts\Variable as VariableContext;
 use App\Parser\Settings;
+use Illuminate\Support\Collection;
 use Microsoft\PhpParser\Node;
 use Microsoft\PhpParser\Node\Expression\Variable;
 use Microsoft\PhpParser\Node\NamespaceUseClause;
@@ -26,7 +27,16 @@ class VariableParser extends AbstractParser
      */
     protected AbstractContext $context;
 
-    public static array $previousContexts = [];
+    public static Collection $previousContexts;
+
+    private function createPhpDocParser(ParserConfig $config): PhpDocParser
+    {
+        $constExprParser = new ConstExprParser($config);
+        $typeParser = new TypeParser($config, $constExprParser);
+
+        return new PhpDocParser($config, $typeParser, $constExprParser);
+
+    }
 
     private function getLatestDocComment(Node $node): ?string
     {
@@ -39,96 +49,109 @@ class VariableParser extends AbstractParser
         return $docComment;
     }
 
+    private function searchDocComment(Node $node): ?string
+    {
+        $docComment = $this->getLatestDocComment($node);
+
+        if ($docComment === null) {
+            return null;
+        }
+
+        $config = new ParserConfig([]);
+        $lexer = new Lexer($config);
+        $phpDocParser = $this->createPhpDocParser($config);
+
+        $tokens = new TokenIterator($lexer->tokenize($docComment));
+        $phpDocNode = $phpDocParser->parse($tokens);
+
+        $varTagValues = $phpDocNode->getVarTagValues();
+
+        /** @var VarTagValueNode|null $tagValue */
+        $tagValue = collect($varTagValues)
+            // We need to remove first character because it's always $
+            ->first(fn (VarTagValueNode $valueNode) => substr($valueNode->variableName, 1) === $this->context->name);
+
+        if (! $tagValue?->type instanceof IdentifierTypeNode) {
+            return null;
+        }
+
+        // If the class name starts with a backslash, it's a fully qualified name
+        if (str_starts_with($tagValue->type->name, '\\')) {
+            return substr($tagValue->type->name, 1);
+        }
+
+        // Otherwise, it's a short name and we need to find the fully qualified name from
+        // the imported namespaces
+        $uses = [];
+
+        foreach ($node->getRoot()->getDescendantNodes() as $node) {
+            if (! $node instanceof NamespaceUseDeclaration) {
+                continue;
+            }
+
+            foreach ($node->useClauses->children ?? [] as $clause) {
+                if (! $clause instanceof NamespaceUseClause) {
+                    continue;
+                }
+
+                $fqcn = $clause->namespaceName->getText();
+
+                // If the namespace has an alias, we need to use the alias as the short name
+                $alias = $clause->namespaceAliasingClause
+                    ? str($clause->namespaceAliasingClause->getText())
+                        ->after('as')
+                        ->trim()
+                        ->toString()
+                    : str($fqcn)->explode('\\')->last();
+
+                // Finally, we add the short and fully qualified name to the uses array
+                $uses[$alias] = $fqcn;
+            }
+        }
+
+        return $uses[$tagValue->type->name] ?? null;
+    }
+
+    private function searchPreviousContexts(): ?string
+    {
+        if (! self::$previousContexts instanceof Collection) {
+            self::$previousContexts = collect();
+        }
+
+        /** @var VariableContext|null $previousVariableContext */
+        $previousVariableContext = self::$previousContexts
+            ->last(fn (VariableContext $context) => $context->name === $this->context->name);
+
+        return $previousVariableContext?->className;
+    }
+
     public function parse(Variable $node)
     {
         $this->context->name = $node->getName();
 
-        $result = $this->context->searchForVar($this->context->name);
+        foreach ([
+            // Firstly, we try to find the className from the method parameter
+            $this->context->searchForVar($this->context->name),
+            // If the className is still not found, we try to find the className
+            // from the doc comment, for example:
+            //
+            // /** @var \App\Models\User $user */
+            // Gate::allows('edit', $user);
+            $this->searchDocComment($node),
+            // If the className is still not found, we try to find the className
+            // from the previous variable contexts, for example:
+            //
+            // /** @var \App\Models\User $user */
+            // $user = $request->user;
+            //
+            // Gate::allows('edit', $user);
+            $this->searchPreviousContexts(),
+        ] as $result) {
+            if (! is_string($result)) {
+                continue;
+            }
 
-        // Firstly, we try to find the className from the method parameter
-        if (is_string($result)) {
             $this->context->className = $result;
-        }
-
-        // If the className is still not found, we try to find the className
-        // from the doc comment, for example:
-        //
-        // /** @var User $user */
-        // Gate::allows('edit', $user);
-        if ($this->context->className === null) {
-            $docComment = $this->getLatestDocComment($node);
-
-            if ($docComment !== null) {
-                $config = new ParserConfig([]);
-                $lexer = new Lexer($config);
-                $constExprParser = new ConstExprParser($config);
-                $typeParser = new TypeParser($config, $constExprParser);
-                $phpDocParser = new PhpDocParser($config, $typeParser, $constExprParser);
-
-                $tokens = new TokenIterator($lexer->tokenize($docComment));
-                $phpDocNode = $phpDocParser->parse($tokens);
-                $varTagValues = $phpDocNode->getVarTagValues();
-
-                /** @var VarTagValueNode|null $tagValue */
-                $tagValue = collect($varTagValues)
-                    // We need to remove first character because it's always $
-                    ->first(fn(VarTagValueNode $valueNode) => substr($valueNode->variableName, 1) === $this->context->name);
-
-                if ($tagValue?->type instanceof IdentifierTypeNode) {
-                    // If the class name starts with a backslash, it's a fully qualified name
-                    if (str_starts_with($tagValue->type->name, '\\')) {
-                        $this->context->className = substr($tagValue->type->name, 1);
-                    // Otherwise, it's a short name and we need to find the fully qualified name from
-                    // the imported namespaces
-                    } else {
-                        $uses = [];
-
-                        foreach ($node->getRoot()->getDescendantNodes() as $node) {
-                            if (! $node instanceof NamespaceUseDeclaration) {
-                                continue;
-                            }
-
-                            foreach ($node->useClauses->children ?? [] as $clause) {
-                                if (! $clause instanceof NamespaceUseClause) {
-                                    continue;
-                                }
-
-                                $fqcn = $clause->namespaceName->getText();
-
-                                // If the namespace has an alias, we need to use the alias as the short name
-                                $alias = $clause->namespaceAliasingClause
-                                    ? str($clause->namespaceAliasingClause->getText())
-                                        ->after('as')
-                                        ->trim()
-                                        ->toString()
-                                    : str($fqcn)->explode('\\')->last();
-
-                                // Finally, we add the short and fully qualified name to the uses array
-                                $uses[$alias] = $fqcn;
-                            }
-                        }
-
-                        $this->context->className = $uses[$tagValue->type->name] ?? null;
-                    }
-                }
-            }
-        }
-
-        // If the className is still not found, we try to find the className
-        // from the previous variable contexts, for example:
-        //
-        // /** @var \App\Models\User $user */
-        // $user = $request->user;
-        //
-        // Gate::allows('edit', $user);
-        if ($this->context->className === null) {
-            /** @var VariableContext|null $previousVariableContext */
-            $previousVariableContext = collect(self::$previousContexts)
-                ->first(fn(VariableContext $context) => $context->name === $this->context->name);
-
-            if ($previousVariableContext !== null) {
-                $this->context->className = $previousVariableContext->className;
-            }
         }
 
         if (Settings::$capturePosition) {
@@ -145,7 +168,7 @@ class VariableParser extends AbstractParser
             $this->context->setPosition($range);
         }
 
-        array_push(self::$previousContexts, $this->context);
+        self::$previousContexts->push($this->context);
 
         return $this->context;
     }
