@@ -65,18 +65,18 @@ class VariableParser extends AbstractParser
 
         $varTagValues = $phpDocNode->getVarTagValues();
 
-        /** @var VarTagValueNode|null $tagValue */
-        $tagValue = collect($varTagValues)
+        /** @var VarTagValueNode|null $varTagValue */
+        $varTagValue = collect($varTagValues)
             // We need to remove first character because it's always $
             ->first(fn (VarTagValueNode $valueNode) => substr($valueNode->variableName, 1) === $this->context->name);
 
-        if (! $tagValue?->type instanceof IdentifierTypeNode) {
+        if (! $varTagValue?->type instanceof IdentifierTypeNode) {
             return null;
         }
 
         // If the class name starts with a backslash, it's a fully qualified name
-        if (str_starts_with($tagValue->type->name, '\\')) {
-            return substr($tagValue->type->name, 1);
+        if (str_starts_with($varTagValue->type->name, '\\')) {
+            return substr($varTagValue->type->name, 1);
         }
 
         // Otherwise, it's a short name and we need to find the fully qualified name from
@@ -108,7 +108,7 @@ class VariableParser extends AbstractParser
             }
         }
 
-        return $uses[$tagValue->type->name] ?? null;
+        return $uses[$varTagValue->type->name] ?? null;
     }
 
     private function searchPreviousContexts(): ?string
