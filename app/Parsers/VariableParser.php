@@ -5,7 +5,6 @@ namespace App\Parsers;
 use App\Contexts\AbstractContext;
 use App\Contexts\Variable as VariableContext;
 use App\Parser\Settings;
-use Illuminate\Support\Collection;
 use Microsoft\PhpParser\Node;
 use Microsoft\PhpParser\Node\Expression\Variable;
 use Microsoft\PhpParser\Node\NamespaceUseClause;
@@ -27,7 +26,7 @@ class VariableParser extends AbstractParser
      */
     protected AbstractContext $context;
 
-    public static Collection $previousContexts;
+    public static array $previousContexts = [];
 
     private function createPhpDocParser(ParserConfig $config): PhpDocParser
     {
@@ -114,12 +113,8 @@ class VariableParser extends AbstractParser
 
     private function searchPreviousContexts(): ?string
     {
-        if (! self::$previousContexts instanceof Collection) {
-            self::$previousContexts = collect();
-        }
-
         /** @var VariableContext|null $previousVariableContext */
-        $previousVariableContext = self::$previousContexts
+        $previousVariableContext = collect(self::$previousContexts)
             ->last(fn (VariableContext $context) => $context->name === $this->context->name);
 
         return $previousVariableContext?->className;
@@ -168,7 +163,7 @@ class VariableParser extends AbstractParser
             $this->context->setPosition($range);
         }
 
-        self::$previousContexts->push($this->context);
+        array_push(self::$previousContexts, $this->context);
 
         return $this->context;
     }

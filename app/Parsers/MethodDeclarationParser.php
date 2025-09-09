@@ -20,7 +20,7 @@ class MethodDeclarationParser extends AbstractParser
         // Every method is a new context, so we need to clear
         // the previous variable contexts
         // @see https://github.com/laravel/vs-code-php-parser-cli/pull/14
-        VariableParser::$previousContexts = collect();
+        VariableParser::$previousContexts = [];
 
         return $this->context;
     }
