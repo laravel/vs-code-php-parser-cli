@@ -48,7 +48,14 @@ class VariableParser extends AbstractParser
         return $docComment;
     }
 
-    private function searchDocComment(Node $node): ?string
+    private function searchClassNameInParameter(): ?string
+    {
+        $className = $this->context->searchForVar($this->context->name);
+
+        return is_string($className) ? $className : null;
+    }
+
+    private function searchClassNameInDocComment(Node $node): ?string
     {
         $docComment = $this->getLatestDocComment($node);
 
@@ -111,7 +118,7 @@ class VariableParser extends AbstractParser
         return $uses[$varTagValue->type->name] ?? null;
     }
 
-    private function searchPreviousContexts(): ?string
+    private function searchClassNameInPreviousContexts(): ?string
     {
         /** @var VariableContext|null $previousVariableContext */
         $previousVariableContext = collect(self::$previousContexts)
@@ -124,15 +131,14 @@ class VariableParser extends AbstractParser
     {
         $this->context->name = $node->getName();
 
-        foreach ([
-            // Firstly, we try to find the className from the method parameter
-            $this->context->searchForVar($this->context->name),
+        // Firstly, we try to find the className from the method parameter
+        $this->context->className = $this->searchClassNameInParameter()
             // If the className is still not found, we try to find the className
             // from the doc comment, for example:
             //
             // /** @var \App\Models\User $user */
             // Gate::allows('edit', $user);
-            $this->searchDocComment($node),
+            ?? $this->searchClassNameInDocComment($node)
             // If the className is still not found, we try to find the className
             // from the previous variable contexts, for example:
             //
@@ -140,14 +146,7 @@ class VariableParser extends AbstractParser
             // $user = $request->user;
             //
             // Gate::allows('edit', $user);
-            $this->searchPreviousContexts(),
-        ] as $result) {
-            if (! is_string($result)) {
-                continue;
-            }
-
-            $this->context->className = $result;
-        }
+            ?? $this->searchClassNameInPreviousContexts();
 
         if (Settings::$capturePosition) {
             $range = PositionUtilities::getRangeFromPosition(
