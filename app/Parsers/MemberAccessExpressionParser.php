@@ -25,7 +25,7 @@ class MemberAccessExpressionParser extends AbstractParser
     {
         $name = $node->memberName->getFullText($node->getRoot()->getFullText());
 
-        return preg_match('/->' . $name . '->;$/s', $node->getFileContents());
+        return preg_match('/->' . preg_quote($name) . '->;$/s', $node->getFileContents());
     }
 
     public function parse(MemberAccessExpression $node)
