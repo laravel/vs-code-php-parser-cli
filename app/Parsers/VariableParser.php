@@ -23,7 +23,7 @@ class VariableParser extends AbstractParser
     {
         $name = $node->getName();
 
-        return preg_match('/\$' . preg_quote($name) . '->;$/s', $node->getFileContents());
+        return preg_match('/\$' . preg_quote($name, '/') . '->;$/s', $node->getFileContents());
     }
 
     public function parse(Variable $node)
