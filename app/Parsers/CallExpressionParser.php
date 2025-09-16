@@ -4,9 +4,11 @@ namespace App\Parsers;
 
 use App\Contexts\AbstractContext;
 use App\Contexts\MethodCall;
+use App\Parser\Settings;
 use Microsoft\PhpParser\MissingToken;
 use Microsoft\PhpParser\Node\Expression\CallExpression;
 use Microsoft\PhpParser\Node\QualifiedName;
+use Microsoft\PhpParser\PositionUtilities;
 
 class CallExpressionParser extends AbstractParser
 {
@@ -23,6 +25,20 @@ class CallExpressionParser extends AbstractParser
 
         if ($node->callableExpression instanceof QualifiedName) {
             $this->context->methodName = (string) ($node->callableExpression->getResolvedName() ?? $node->callableExpression->getText());
+        }
+
+        if (Settings::$capturePosition) {
+            $range = PositionUtilities::getRangeFromPosition(
+                $node->getStartPosition(),
+                mb_strlen($node->getText()),
+                $node->getRoot()->getFullText(),
+            );
+
+            if (Settings::$calculatePosition !== null) {
+                $range = Settings::adjustPosition($range);
+            }
+
+            $this->context->setPosition($range);
         }
 
         $this->context->autocompleting = $node->closeParen instanceof MissingToken;
