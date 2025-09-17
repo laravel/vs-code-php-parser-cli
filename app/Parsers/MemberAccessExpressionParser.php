@@ -56,9 +56,13 @@ class MemberAccessExpressionParser extends AbstractParser
                     continue;
                 }
 
-                $varName = $child->getName();
+                /** @var VariableParser $variableParser */
+                $variableParser = app()->make(VariableParser::class);
+                $variableParser->context($variableParser->initNewContext());
 
-                $result = $this->context->searchForVar($varName);
+                $variableContext = $variableParser->parse($child);
+
+                $result = $variableContext->className;
 
                 if (!$result) {
                     return $this->context;
