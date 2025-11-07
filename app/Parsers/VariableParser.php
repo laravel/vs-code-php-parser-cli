@@ -37,6 +37,17 @@ class VariableParser extends AbstractParser
 
     }
 
+    /**
+     * Check if the node has a object operator and
+     * is a last element in the string
+     */
+    private function hasObjectOperator(Variable $node): bool
+    {
+        $name = $node->getName();
+
+        return preg_match('/\$' . preg_quote($name, '/') . '->;$/s', $node->getFileContents());
+    }
+
     private function getLatestDocComment(Node $node): ?string
     {
         $docComment = $node->getDocCommentText();
@@ -46,13 +57,6 @@ class VariableParser extends AbstractParser
         }
 
         return $docComment;
-    }
-
-    private function searchClassNameInParameter(): ?string
-    {
-        $className = $this->context->searchForVar($this->context->name);
-
-        return is_string($className) ? $className : null;
     }
 
     private function searchClassNameInDocComment(Node $node): ?string
@@ -77,7 +81,7 @@ class VariableParser extends AbstractParser
             // We need to remove first character because it's always $
             ->first(fn (VarTagValueNode $valueNode) => substr($valueNode->variableName, 1) === $this->context->name);
 
-        if (! $varTagValue?->type instanceof IdentifierTypeNode) {
+        if (!$varTagValue?->type instanceof IdentifierTypeNode) {
             return null;
         }
 
@@ -91,12 +95,12 @@ class VariableParser extends AbstractParser
         $uses = [];
 
         foreach ($node->getRoot()->getDescendantNodes() as $node) {
-            if (! $node instanceof NamespaceUseDeclaration) {
+            if (!$node instanceof NamespaceUseDeclaration) {
                 continue;
             }
 
             foreach ($node->useClauses->children ?? [] as $clause) {
-                if (! $clause instanceof NamespaceUseClause) {
+                if (!$clause instanceof NamespaceUseClause) {
                     continue;
                 }
 
@@ -129,16 +133,19 @@ class VariableParser extends AbstractParser
 
     public function parse(Variable $node)
     {
+        if ($this->hasObjectOperator($node)) {
+            $this->context->autocompleting = true;
+        }
+
         $this->context->name = $node->getName();
 
-        // Firstly, we try to find the className from the method parameter
-        $this->context->className = $this->searchClassNameInParameter()
-            // If the className is still not found, we try to find the className
+        $this->context->className =
+            // Firstly, we try to find the className
             // from the doc comment, for example:
             //
             // /** @var \App\Models\User $user */
             // Gate::allows('edit', $user);
-            ?? $this->searchClassNameInDocComment($node)
+            $this->searchClassNameInDocComment($node)
             // If the className is still not found, we try to find the className
             // from the previous variable contexts, for example:
             //
