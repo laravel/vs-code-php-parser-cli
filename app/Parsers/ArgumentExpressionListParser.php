@@ -4,6 +4,7 @@ namespace App\Parsers;
 
 use App\Contexts\AbstractContext;
 use App\Contexts\MethodCall;
+use App\Contexts\ObjectValue;
 
 class ArgumentExpressionListParser extends AbstractParser
 {
@@ -14,7 +15,7 @@ class ArgumentExpressionListParser extends AbstractParser
 
     public function parse($node)
     {
-        if ($this->context instanceof MethodCall) {
+        if ($this->context instanceof MethodCall || $this->context instanceof ObjectValue) {
             return $this->context->arguments;
         }
 
