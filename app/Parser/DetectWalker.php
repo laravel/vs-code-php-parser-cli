@@ -7,6 +7,7 @@ use App\Contexts\Blade;
 use App\Support\Debugs;
 use Illuminate\Support\Arr;
 use Microsoft\PhpParser\Node;
+use Microsoft\PhpParser\Node\Attribute;
 use Microsoft\PhpParser\Node\Expression\CallExpression;
 use Microsoft\PhpParser\Node\Expression\ObjectCreationExpression;
 use Microsoft\PhpParser\Node\SourceFileNode;
@@ -52,6 +53,7 @@ class DetectWalker
     protected function handleContext(Node $node, AbstractContext $context)
     {
         $nodesToDetect = [
+            Attribute::class,
             CallExpression::class,
             ObjectCreationExpression::class,
         ];
