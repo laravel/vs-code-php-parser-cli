@@ -6,12 +6,16 @@ use App\Contexts\AbstractContext;
 use App\Contexts\Blade;
 use App\Parser\Parse;
 use App\Parser\Settings;
+use Illuminate\Support\Collection;
+use Illuminate\Support\Str;
 use Microsoft\PhpParser\Node\Statement\InlineHtml;
 use Microsoft\PhpParser\Parser;
 use Microsoft\PhpParser\PositionUtilities;
 use Microsoft\PhpParser\Range;
 use Stillat\BladeParser\Document\Document;
 use Stillat\BladeParser\Nodes\BaseNode;
+use Stillat\BladeParser\Nodes\Components\ComponentNode;
+use Stillat\BladeParser\Nodes\Components\ParameterNode;
 use Stillat\BladeParser\Nodes\DirectiveNode;
 use Stillat\BladeParser\Nodes\EchoNode;
 use Stillat\BladeParser\Nodes\EchoType;
@@ -58,7 +62,8 @@ class InlineHtmlParser extends AbstractParser
         }
 
         $this->parseBladeContent(Document::fromText(
-            $this->replaceMultibyteChars($node->getText())
+            document: $this->replaceMultibyteChars($node->getText()),
+            customComponentTags: ['flux']
         ));
 
         if (count($this->items)) {
@@ -89,7 +94,61 @@ class InlineHtmlParser extends AbstractParser
                 $this->parseEchoNode($child);
             }
 
+            if ($child instanceof ComponentNode) {
+                $this->parseComponentNode($child);
+            }
+
             $this->parseBladeContent($child);
+        }
+    }
+
+    protected function parseComponentNode(ComponentNode $node)
+    {
+        /** @var Collection<int, ParameterNode> $parameters */
+        $parameters = $node->getParameters();
+
+        foreach ($parameters as $parameter) {
+            $prefix = Str::match('/^({{{|{{|{!!)/', $parameter->value);
+
+            $snippet = "<?php\n" . str_repeat(' ', $node->getStartIndentationLevel()) . str_replace($prefix, '', $parameter->value) . ';';
+
+            $sourceFile = (new Parser)->parseSourceFile($snippet);
+
+            Settings::$calculatePosition = function (Range $range) use ($node, $parameter) {
+                if ($range->start->line === 1) {
+                    $rangeCharacters = $range->end->character - $range->start->character;
+                    // If component has />, then we need to remove 1 character
+                    $selfClosingCharacter = $node->getIsSelfClosing() ? 1 : 0;
+
+                    $firstQuotePosition = strpos($parameter->content, "'");
+
+                    $range->start->character = $parameter->position->startColumn + $firstQuotePosition - $selfClosingCharacter;
+                    $range->end->character = $parameter->position->startColumn + $firstQuotePosition + $rangeCharacters - $selfClosingCharacter;
+
+                    // Temporary fix for Stillat/blade-parser
+                    // If a component prefix is not x (for example flux:input instead x-flux::input)
+                    // then Stillat/blade-parser returns miscalculated positions. I don't know why
+                    if ($node->componentPrefix === "flux") {
+                        $range->start->character += 3 + $selfClosingCharacter;
+                        $range->end->character += 3 + $selfClosingCharacter;
+                    }
+                }
+
+                $range->start->line += $this->startLine + $parameter->position->startLine - 2;
+                $range->end->line += $this->startLine + $parameter->position->startLine - 2;
+
+                return $range;
+            };
+
+            $result = Parse::parse($sourceFile);
+
+            if (count($result->children) === 0) {
+                continue;
+            }
+
+            $child = $result->children[0];
+
+            $this->items[] = $child;
         }
     }
 
